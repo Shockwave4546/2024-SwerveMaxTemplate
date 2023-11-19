@@ -26,8 +26,7 @@ public class MAXSwerveModule {
   /**
    * Constructs a MAXSwerveModule and configures the driving and turning motor,
    * encoder, and SparkMaxPIDController. This configuration is specific to the REV
-   * MAXSwerve Module built with NEOs, SPARKS MAX, and a ThroughBore
-   * Encoder.
+   * MAXSwerve Module built with NEOs, SPARKS MAX, and a ThroughBore Encoder.
    */
   @SuppressWarnings("resource")
   public MAXSwerveModule(int drivingCANId, int turningCANId, double chassisAngularOffset, boolean invertDrivingDirection, ShuffleboardTab tab) {
@@ -79,8 +78,7 @@ public class MAXSwerveModule {
     drivingPIDController.setI(ModuleConstants.DRIVING_I);
     drivingPIDController.setD(ModuleConstants.DRIVING_D);
     drivingPIDController.setFF(ModuleConstants.DRIVING_FF);
-    drivingPIDController.setOutputRange(ModuleConstants.DRIVING_MIN_OUTPUT,
-            ModuleConstants.DRIVING_MAX_OUTPUT);
+    drivingPIDController.setOutputRange(ModuleConstants.DRIVING_MIN_OUTPUT, ModuleConstants.DRIVING_MAX_OUTPUT);
 
     // Set the PID gains for the turning motor. Note these are example gains, and you
     // may need to tune them for your own robot!
@@ -88,8 +86,7 @@ public class MAXSwerveModule {
     turningPIDController.setI(ModuleConstants.TURNING_I);
     turningPIDController.setD(ModuleConstants.TURNING_D);
     turningPIDController.setFF(ModuleConstants.TURNING_FF);
-    turningPIDController.setOutputRange(ModuleConstants.TURNING_MIN_OUTPUT,
-            ModuleConstants.TURNING_MAX_OUTPUT);
+    turningPIDController.setOutputRange(ModuleConstants.TURNING_MIN_OUTPUT, ModuleConstants.TURNING_MAX_OUTPUT);
 
     drivingSparkMax.setIdleMode(ModuleConstants.DRIVING_MOTOR_IDLE_MODE);
     turningSparkMax.setIdleMode(ModuleConstants.TURNING_MOTOR_IDLE_MODE);
