@@ -21,16 +21,8 @@ public class ShuffleboardDouble implements ShuffleboardValue {
     this(tab, name, DEFAULT_VALUE);
   }
 
-  public ShuffleboardDouble(String name, double def) {
-    this(GlobalTab.DEBUG, name, def);
-  }
-
-  public ShuffleboardDouble(String name) {
-    this(GlobalTab.DEBUG, name, DEFAULT_VALUE);
-  }
-
-  public ShuffleboardDouble withSize(int length, int width) {
-    widget.withSize(length, width);
+  public ShuffleboardDouble withSize(int length, int height) {
+    widget.withSize(length, height);
     return this;
   }
 

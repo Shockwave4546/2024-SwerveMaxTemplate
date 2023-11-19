@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.subsystems;
 
 import com.revrobotics.AbsoluteEncoder;
@@ -109,44 +105,38 @@ public class MAXSwerveModule {
     desiredState.angle = new Rotation2d(turningEncoder.getPosition());
     drivingEncoder.setPosition(0);
 
-    /*
-     * For debugging
-     */
-    tab.add("(Driving) ID", drivingCANId);
-    tab.addNumber("(Driving Applied Duty Cycle", drivingSparkMax::getAppliedOutput);
-    tab.addNumber("(Driving) Applied Amperage", drivingSparkMax::getOutputCurrent);
-    tab.addNumber("(Driving) Temperature (C)", drivingSparkMax::getMotorTemperature);
-    tab.add("(Driving) PID Controller", new TunableSparkMaxPIDController(drivingPIDController));
+    // For debugging purposes.
+    tab.add("(Driving) ID", drivingCANId).withSize(4, 1).withPosition(0, 0);
+    tab.addNumber("(Driving Applied Duty Cycle", drivingSparkMax::getAppliedOutput).withSize(4, 1).withPosition(0, 1);
+    tab.addNumber("(Driving) Applied Amperage", drivingSparkMax::getOutputCurrent).withSize(4, 1).withPosition(0, 2);
+    tab.addNumber("(Driving) Temperature (C)", drivingSparkMax::getMotorTemperature).withSize(4, 1).withPosition(0, 3);
+    tab.add("(Driving) PID Controller", new TunableSparkMaxPIDController(drivingPIDController)).withSize(2, 3).withPosition(4, 0);
 
-    tab.add("(Turning) ID", turningCANId);
-    // TOOD: Lowk this angle measurement in degrees is kinda bad.
-    tab.addNumber("(Turning) Relative Angle (Degrees)", () -> Math.toDegrees(turningEncoder.getPosition() - chassisAngularOffset));
-    tab.addNumber("(Turning) Applied Duty Cycle", turningSparkMax::getAppliedOutput);
-    tab.addNumber("(Turning) Applied Amperage", turningSparkMax::getOutputCurrent);
-    tab.addNumber("(Turning) Temperature (C)", turningSparkMax::getMotorTemperature);
-    tab.add("(Turning) Turning PID Controller", new TunableSparkMaxPIDController(turningPIDController));
+    tab.add("(Turning) ID", turningCANId).withSize(4, 1).withPosition(0, 4);
+    tab.addNumber("(Turning) Applied Duty Cycle", turningSparkMax::getAppliedOutput).withSize(4, 1).withPosition(0, 5);
+    tab.addNumber("(Turning) Applied Amperage", turningSparkMax::getOutputCurrent).withSize(4, 1).withPosition(0, 6);
+    tab.addNumber("(Turning) Temperature (C)", turningSparkMax::getMotorTemperature).withSize(4, 1).withPosition(0, 7);
+    tab.add("(Turning) Turning PID Controller", new TunableSparkMaxPIDController(turningPIDController)).withSize(2, 3).withPosition(4, 4);
   }
 
   /**
-   * Returns the current state of the module.
+   * Returns the current state of the module. A chassis angular offset is applied to the encoder position
+   * to get the position relative to the chassis.
    *
    * @return The current state of the module.
    */
   public SwerveModuleState getState() {
-    // Apply chassis angular offset to the encoder position to get the position
-    // relative to the chassis.
     return new SwerveModuleState(drivingEncoder.getVelocity(),
             new Rotation2d(turningEncoder.getPosition() - chassisAngularOffset));
   }
 
   /**
-   * Returns the current position of the module.
+   * Returns the current position of the module. A chassis angular offset is applied to the encoder position
+   * to get the position relative to the chassis.
    *
    * @return The current position of the module.
    */
   public SwerveModulePosition getPosition() {
-    // Apply chassis angular offset to the encoder position to get the position
-    // relative to the chassis.
     return new SwerveModulePosition(
             drivingEncoder.getPosition(),
             new Rotation2d(turningEncoder.getPosition() - chassisAngularOffset));
@@ -159,13 +149,13 @@ public class MAXSwerveModule {
    */
   public void setDesiredState(SwerveModuleState desiredState) {
     // Apply chassis angular offset to the desired state.
-    SwerveModuleState correctedDesiredState = new SwerveModuleState();
-    correctedDesiredState.speedMetersPerSecond = desiredState.speedMetersPerSecond;
-    correctedDesiredState.angle = desiredState.angle.plus(Rotation2d.fromRadians(chassisAngularOffset));
+    final var correctedDesiredState = new SwerveModuleState(
+            desiredState.speedMetersPerSecond,
+            desiredState.angle.plus(Rotation2d.fromRadians(chassisAngularOffset))
+    );
 
     // Optimize the reference state to avoid spinning further than 90 degrees.
-    SwerveModuleState optimizedDesiredState = SwerveModuleState.optimize(correctedDesiredState,
-            new Rotation2d(turningEncoder.getPosition()));
+    final var optimizedDesiredState = SwerveModuleState.optimize(correctedDesiredState, new Rotation2d(turningEncoder.getPosition()));
 
     // Command driving and turning SPARKS MAX towards their respective setpoints.
     drivingPIDController.setReference(optimizedDesiredState.speedMetersPerSecond, CANSparkMax.ControlType.kVelocity);
@@ -175,7 +165,7 @@ public class MAXSwerveModule {
   }
 
   /**
-   * Zeroes all the SwerveModule encoders.
+   * Zeroes the SwerveModule encoder.
    */
   public void resetEncoders() {
     drivingEncoder.setPosition(0);

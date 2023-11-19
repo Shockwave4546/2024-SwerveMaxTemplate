@@ -20,9 +20,9 @@ public class TunableSparkMaxPIDController implements Sendable {
     builder.addDoubleProperty("i", child::getI, child::setI);
     builder.addDoubleProperty("d", child::getD, child::setD);
     builder.addDoubleProperty("f", child::getFF, child::setFF);
-    // TODO: 11/12/23 This is annoying to do, but do it sometime else. Probably Supplier<Double> for ::get
+
+    // Ignore these two fields, but it's necessary to satisfy the PIDController SmartDashboard type.
     builder.addDoubleProperty("setpoint", null, null);
-    // TODO: 11/12/23 Lowkey same thing as the thing above.
     builder.addBooleanProperty("enabled", () -> true, null);
   }
 }
