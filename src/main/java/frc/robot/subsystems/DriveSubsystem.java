@@ -9,11 +9,13 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.*;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.shuffleboard.ShuffleboardSpeed;
+
+import static frc.robot.Constants.Tabs.MATCH;
 
 public class DriveSubsystem extends SubsystemBase {
   private final MAXSwerveModule frontLeft = new MAXSwerveModule(
@@ -49,8 +51,8 @@ public class DriveSubsystem extends SubsystemBase {
   );
 
   private final AHRS gyro = new AHRS();
-  private final ShuffleboardSpeed DRIVE_SPEED_MULTIPLIER = new ShuffleboardSpeed(Constants.Tabs.MATCH, "Drive Speed Multiplier", 0.8);
-  private final ShuffleboardSpeed ROT_SPEED_MULTIPLIER = new ShuffleboardSpeed(Constants.Tabs.MATCH, "Rot Speed Multiplier", 1.0);
+  private final ShuffleboardSpeed DRIVE_SPEED_MULTIPLIER = new ShuffleboardSpeed(MATCH, "Drive Speed Multiplier", 0.8);
+  private final ShuffleboardSpeed ROT_SPEED_MULTIPLIER = new ShuffleboardSpeed(MATCH, "Rot Speed Multiplier", 1.0);
 
   // Odometry class for tracking robot pose
   private final SwerveDriveOdometry odometry = new SwerveDriveOdometry(
@@ -63,8 +65,11 @@ public class DriveSubsystem extends SubsystemBase {
                   backRight.getPosition()
           });
 
+  private final Field2d field = new Field2d();
+
   public DriveSubsystem() {
-    Constants.Tabs.MATCH.add("Gyro", gyro);
+    MATCH.add("Gyro", gyro);
+    MATCH.add("Field", field);
 
     // Ensure this is called after all initialization is complete.
     AutoBuilder.configureHolonomic(
@@ -95,6 +100,8 @@ public class DriveSubsystem extends SubsystemBase {
                     backLeft.getPosition(),
                     backRight.getPosition()
             });
+
+    field.setRobotPose(getPose());
   }
 
   /**
