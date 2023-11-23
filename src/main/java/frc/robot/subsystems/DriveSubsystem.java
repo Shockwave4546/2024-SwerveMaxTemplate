@@ -5,6 +5,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
+import com.sun.jdi.Field;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.*;
@@ -13,6 +14,9 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Robot;
+import frc.robot.simulations.FieldSim;
+import frc.robot.simulations.ModulePosition;
 import frc.shuffleboard.ShuffleboardSpeed;
 
 import static frc.robot.Constants.Tabs.MATCH;
@@ -66,6 +70,7 @@ public class DriveSubsystem extends SubsystemBase {
           });
 
   private final Field2d field = new Field2d();
+  private final FieldSim fieldSim = Robot.isSimulation() ? new FieldSim(this) : null;
 
   public DriveSubsystem() {
     MATCH.add("Gyro", gyro);
@@ -102,6 +107,10 @@ public class DriveSubsystem extends SubsystemBase {
             });
 
     field.setRobotPose(getPose());
+  }
+
+  @Override public void simulationPeriodic() {
+    fieldSim.updatePoses();
   }
 
   /**
@@ -191,6 +200,20 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   /**
+   * @param position The relative position of the SwerveModule.
+   * @return the MAXSwerveModule associated with the ModulePosition.
+   */
+  public MAXSwerveModule getModule(ModulePosition position) {
+    switch (position) {
+      case FRONT_LEFT -> { return frontLeft; }
+      case FRONT_RIGHT -> { return frontRight; }
+      case BACK_LEFT -> { return backLeft; }
+      case BACK_RIGHT ->  { return backRight; }
+      default -> throw new RuntimeException("I don't even know what you put in here...");
+    }
+  }
+
+  /**
    * Sets the swerve ModuleStates.
    *
    * @param desiredStates The desired SwerveModule states.
@@ -227,6 +250,15 @@ public class DriveSubsystem extends SubsystemBase {
    */
   public double getHeading() {
     return Rotation2d.fromDegrees(getRawAngleDegrees()).getDegrees();
+  }
+
+  /**
+   * Returns the heading of the robot.
+   *
+   * @return The robot's heading as a Rotation2d.
+   */
+  public Rotation2d getHeadingRotation2d() {
+    return Rotation2d.fromDegrees(getRawAngleDegrees());
   }
 
   /**

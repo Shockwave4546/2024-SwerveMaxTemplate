@@ -6,6 +6,9 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import frc.robot.simulations.ModulePosition;
+
+import java.util.Map;
 
 public final class Constants {
   public static final class DriveConstants {
@@ -23,11 +26,20 @@ public final class Constants {
     // Distance between centers of right and left wheels on robot
     public static final double WHEEL_BASE = Units.inchesToMeters(32);
     // Distance between front and back wheels on robot
+
+    public static final Map<ModulePosition, Translation2d> MODULE_TRANSLATIONS = Map.of(
+            ModulePosition.FRONT_LEFT, new Translation2d(WHEEL_BASE / 2, TRACK_WIDTH / 2),
+            ModulePosition.FRONT_RIGHT, new Translation2d(WHEEL_BASE / 2, -TRACK_WIDTH / 2),
+            ModulePosition.BACK_LEFT, new Translation2d(-WHEEL_BASE / 2, TRACK_WIDTH / 2),
+            ModulePosition.BACK_RIGHT, new Translation2d(-WHEEL_BASE / 2, -TRACK_WIDTH / 2)
+    );
+
     public static final SwerveDriveKinematics DRIVE_KINEMATICS = new SwerveDriveKinematics(
-            new Translation2d(WHEEL_BASE / 2, TRACK_WIDTH / 2),       // Front Left
-            new Translation2d(WHEEL_BASE / 2, -TRACK_WIDTH / 2),      // Front Right
-            new Translation2d(-WHEEL_BASE / 2, TRACK_WIDTH / 2),      // Back Left
-            new Translation2d(-WHEEL_BASE / 2, -TRACK_WIDTH / 2));    // Back Right
+            MODULE_TRANSLATIONS.get(ModulePosition.FRONT_LEFT),
+            MODULE_TRANSLATIONS.get(ModulePosition.FRONT_RIGHT),
+            MODULE_TRANSLATIONS.get(ModulePosition.BACK_LEFT),
+            MODULE_TRANSLATIONS.get(ModulePosition.BACK_RIGHT)
+    );
 
     // Angular offsets of the modules relative to the chassis in radians
     public static final double FRONT_LEFT_CHASSIS_ANGULAR_OFFSET = -Math.PI / 2 - Math.PI / 2;

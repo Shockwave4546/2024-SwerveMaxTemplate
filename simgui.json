@@ -1,0 +1,58 @@
+{
+  "NTProvider": {
+    "types": {
+      "/FMSInfo": "FMSInfo",
+      "/LiveWindow/Ungrouped/PIDController[1]": "PIDController",
+      "/LiveWindow/Ungrouped/PIDController[2]": "PIDController",
+      "/LiveWindow/Ungrouped/PIDController[3]": "PIDController",
+      "/LiveWindow/Ungrouped/PIDController[4]": "PIDController",
+      "/LiveWindow/Ungrouped/PIDController[5]": "PIDController",
+      "/LiveWindow/Ungrouped/PIDController[6]": "PIDController",
+      "/LiveWindow/Ungrouped/PIDController[7]": "PIDController",
+      "/LiveWindow/Ungrouped/PIDController[8]": "PIDController",
+      "/LiveWindow/Ungrouped/PIDController[9]": "PIDController",
+      "/LiveWindow/Ungrouped/Scheduler": "Scheduler",
+      "/LiveWindow/Ungrouped/navX-Sensor[4]": "Gyro",
+      "/Shuffleboard/Back Left Motors/(Driving) PID Controller": "PIDController",
+      "/Shuffleboard/Back Left Motors/(Turning) Turning PID Controller": "PIDController",
+      "/Shuffleboard/Back Right Motors/(Driving) PID Controller": "PIDController",
+      "/Shuffleboard/Back Right Motors/(Turning) Turning PID Controller": "PIDController",
+      "/Shuffleboard/Front Left Motors/(Driving) PID Controller": "PIDController",
+      "/Shuffleboard/Front Left Motors/(Turning) Turning PID Controller": "PIDController",
+      "/Shuffleboard/Front Right Motors/(Driving) PID Controller": "PIDController",
+      "/Shuffleboard/Front Right Motors/(Turning) Turning PID Controller": "PIDController",
+      "/Shuffleboard/Match/Autonomous": "String Chooser",
+      "/Shuffleboard/Match/Field": "Field2d",
+      "/Shuffleboard/Match/Field Sim": "Field2d",
+      "/Shuffleboard/Match/Gyro": "Gyro"
+    },
+    "windows": {
+      "/Shuffleboard/Back Left Motors/(Driving) PID Controller": {
+        "window": {
+          "visible": true
+        }
+      },
+      "/Shuffleboard/Match/Autonomous": {
+        "window": {
+          "visible": true
+        }
+      },
+      "/Shuffleboard/Match/Field Sim": {
+        "window": {
+          "visible": true
+        }
+      }
+    }
+  },
+  "NetworkTables": {
+    "Retained Values": {
+      "open": false
+    },
+    "Transitory Values": {
+      "open": false
+    }
+  },
+  "NetworkTables View": {
+    "visible": false
+  }
+}
