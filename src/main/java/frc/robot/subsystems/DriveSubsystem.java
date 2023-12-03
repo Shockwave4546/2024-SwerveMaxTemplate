@@ -5,19 +5,14 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
-import com.sun.jdi.Field;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.*;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
-import frc.robot.Robot;
-import frc.robot.simulations.FieldSim;
-import frc.robot.simulations.ModulePosition;
+import frc.robot.ModulePosition;
 import frc.shuffleboard.ShuffleboardSpeed;
 
 import static frc.robot.Constants.Tabs.MATCH;
@@ -70,12 +65,8 @@ public class DriveSubsystem extends SubsystemBase {
                   backRight.getPosition()
           });
 
-  private final Field2d field = new Field2d();
-  private final FieldSim fieldSim = Robot.isSimulation() ? new FieldSim(this) : null;
-
   public DriveSubsystem() {
     MATCH.add("Gyro", gyro);
-    MATCH.add("Field", field);
 
     // Ensure this is called after all initialization is complete.
     AutoBuilder.configureHolonomic(
@@ -106,12 +97,6 @@ public class DriveSubsystem extends SubsystemBase {
                     backLeft.getPosition(),
                     backRight.getPosition()
             });
-
-    field.setRobotPose(getPose());
-  }
-
-  @Override public void simulationPeriodic() {
-    fieldSim.updatePoses();
   }
 
   /**
