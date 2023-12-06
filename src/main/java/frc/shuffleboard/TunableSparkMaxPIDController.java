@@ -10,10 +10,20 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 public class TunableSparkMaxPIDController implements Sendable {
   private final SparkMaxPIDController child;
 
+  /**
+   * Constructs a new instance of the TunableSparkMaxPIDController with the specified child controller.
+   *
+   * @param child the child controller to use for control operations
+   */
   public TunableSparkMaxPIDController(SparkMaxPIDController child) {
     this.child = child;
   }
 
+  /**
+   * Initializes the Sendable interface for the TunableSparkMaxPIDController.
+   *
+   * @param builder the Sendable builder used to configure the SmartDashboard properties
+   */
   @Override public void initSendable(SendableBuilder builder) {
     builder.setSmartDashboardType("PIDController");
     builder.addDoubleProperty("p", child::getP, child::setP);
