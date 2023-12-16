@@ -1,10 +1,7 @@
 package frc.robot;
 
 import com.pathplanner.lib.util.PPLibTelemetry;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.TrapezoidProfileCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.IOConstants;
 import frc.robot.commands.ResetGyroCommand;
