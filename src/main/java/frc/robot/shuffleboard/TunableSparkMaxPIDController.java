@@ -1,4 +1,4 @@
-package frc.shuffleboard;
+package frc.robot.shuffleboard;
 
 import com.revrobotics.SparkMaxPIDController;
 import edu.wpi.first.util.sendable.Sendable;

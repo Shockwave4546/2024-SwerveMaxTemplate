@@ -12,8 +12,8 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
-import frc.shuffleboard.ShuffleboardBoolean;
-import frc.shuffleboard.ShuffleboardSpeed;
+import frc.robot.shuffleboard.ShuffleboardBoolean;
+import frc.robot.shuffleboard.ShuffleboardSpeed;
 
 import static frc.robot.Constants.Tabs.MATCH;
 
@@ -182,7 +182,6 @@ public class SwerveSubsystem extends SubsystemBase {
    * @param position The relative position of the SwerveModule.
    * @return the MAXSwerveModule associated with the ModulePosition.
    */
-  @SuppressWarnings("unused")
   public MAXSwerveModule getModule(ModulePosition position) {
     switch (position) {
       case FRONT_LEFT -> { return frontLeft; }

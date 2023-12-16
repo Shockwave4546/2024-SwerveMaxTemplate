@@ -11,7 +11,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import frc.robot.Constants.ModuleConstants;
-import frc.shuffleboard.TunableSparkMaxPIDController;
+import frc.robot.shuffleboard.TunableSparkMaxPIDController;
 
 public class MAXSwerveModule {
   private final RelativeEncoder drivingEncoder;
