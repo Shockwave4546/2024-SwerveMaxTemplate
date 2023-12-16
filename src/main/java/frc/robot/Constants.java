@@ -98,7 +98,7 @@ public final class Constants {
     public static final double DRIVING_MIN_OUTPUT = -1;
     public static final double DRIVING_MAX_OUTPUT = 1;
 
-    public static final double TURNING_P = 0.25;
+    public static final double TURNING_P = 0.1;
     public static final double TURNING_I = 0;
     public static final double TURNING_D = 0;
     public static final double TURNING_FF = 0;
@@ -113,11 +113,11 @@ public final class Constants {
   }
 
   public static final class AutoConstants {
-    public static final double DRIVING_P = 0.04;
+    public static final double DRIVING_P = 0.1;
     public static final double DRIVING_I = 0;
     public static final double DRIVING_D = 0;
 
-    public static final double TURNING_P = 0.25;
+    public static final double TURNING_P = 0.35;
     public static final double TURNING_I = 0;
     public static final double TURNING_D = 0;
   }

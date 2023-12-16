@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.TrapezoidProfileCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.IOConstants;
+import frc.robot.commands.ResetGyroCommand;
 import frc.robot.subsystems.DriveSubsystem;
 
 public class RobotContainer {
@@ -23,6 +24,6 @@ public class RobotContainer {
   }
 
   private void configureButtonBindings() {
-    driverController.a().onTrue(new RunCommand(drive::zeroHeading, drive));
+    driverController.a().onTrue(new ResetGyroCommand(drive));
   }
 }

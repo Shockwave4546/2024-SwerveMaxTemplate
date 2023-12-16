@@ -22,7 +22,7 @@ public class DriveSubsystem extends SubsystemBase {
           DriveConstants.FRONT_LEFT_DRIVING_CAN_ID,
           DriveConstants.FRONT_LEFT_TURNING_CAN_ID,
           DriveConstants.FRONT_LEFT_CHASSIS_ANGULAR_OFFSET,
-          true,
+          false,
           Shuffleboard.getTab("Front Left Motors")
   );
 
@@ -30,7 +30,7 @@ public class DriveSubsystem extends SubsystemBase {
           DriveConstants.FRONT_RIGHT_DRIVING_CAN_ID,
           DriveConstants.FRONT_RIGHT_TURNING_CAN_ID,
           DriveConstants.FRONT_RIGHT_CHASSIS_ANGULAR_OFFSET,
-          true,
+          false,
           Shuffleboard.getTab("Front Right Motors")
   );
 
@@ -38,7 +38,7 @@ public class DriveSubsystem extends SubsystemBase {
           DriveConstants.BACK_LEFT_DRIVING_CAN_ID,
           DriveConstants.BACK_LEFT_TURNING_CAN_ID,
           DriveConstants.BACK_LEFT_CHASSIS_ANGULAR_OFFSET,
-          true,
+          false,
           Shuffleboard.getTab("Back Left Motors")
   );
 
@@ -46,7 +46,7 @@ public class DriveSubsystem extends SubsystemBase {
           DriveConstants.BACK_RIGHT_DRIVING_CAN_ID,
           DriveConstants.BACK_RIGHT_TURNING_CAN_ID,
           DriveConstants.BACK_RIGHT_CHASSIS_ANGULAR_OFFSET,
-          true,
+          false,
           Shuffleboard.getTab("Back Right Motors")
   );
 
@@ -67,6 +67,7 @@ public class DriveSubsystem extends SubsystemBase {
 
   public DriveSubsystem() {
     MATCH.add("Gyro", gyro);
+    zeroHeading();
 
     // Ensure this is called after all initialization is complete.
     AutoBuilder.configureHolonomic(
@@ -168,7 +169,8 @@ public class DriveSubsystem extends SubsystemBase {
    * @param speeds Speed to drive.
    */
   private void drive(ChassisSpeeds speeds) {
-    final var swerveModuleStates = DriveConstants.DRIVE_KINEMATICS.toSwerveModuleStates(speeds);
+    // For some reason, PathPlanner is giving me opposite directions, so use this temporary fix.
+    final var swerveModuleStates = DriveConstants.DRIVE_KINEMATICS.toSwerveModuleStates(speeds.times(-1.0));
     setModuleStates(swerveModuleStates);
   }
 
