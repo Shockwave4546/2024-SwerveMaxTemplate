@@ -2,8 +2,8 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 3.41,
-      "y": 6.01
+      "x": 2,
+      "y": 3.0
     },
     "rotation": 0
   },
@@ -14,13 +14,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Turn180"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Print"
+            "pathName": "FunPath"
           }
         }
       ]
