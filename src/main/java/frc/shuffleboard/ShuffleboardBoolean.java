@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
 
 /**
- *
+ * A class representing a boolean value on the Shuffleboard dashboard.
  */
 public class ShuffleboardBoolean implements ShuffleboardValue {
   private static final boolean DEFAULT_VALUE = false;
@@ -14,9 +14,11 @@ public class ShuffleboardBoolean implements ShuffleboardValue {
   private final boolean def;
 
   /**
-   * @param tab
-   * @param name
-   * @param def
+   * Constructs a new ShuffleboardBoolean object with the given parameters.
+   *
+   * @param tab  the ShuffleboardTab to add the widget to
+   * @param name the name of the widget
+   * @param def  the default value for the widget
    */
   public ShuffleboardBoolean(ShuffleboardTab tab, String name, boolean def) {
     this.widget = tab.add(name, def);
@@ -25,27 +27,33 @@ public class ShuffleboardBoolean implements ShuffleboardValue {
   }
 
   /**
-   * @param tab
-   * @param name
+   * Constructs a new ShuffleboardBoolean object with the given parameters. The default value for the widget is set to false.
+   *
+   * @param tab  the ShuffleboardTab to add the widget to
+   * @param name the name of the widget
    */
   public ShuffleboardBoolean(ShuffleboardTab tab, String name) {
     this(tab, name, DEFAULT_VALUE);
   }
 
   /**
-   * @param length
-   * @param width
-   * @return
+   * Sets the size of the widget.
+   *
+   * @param length the length of the widget
+   * @param height the height of the widget
+   * @return the modified ShuffleboardBoolean object
    */
-  public ShuffleboardBoolean withSize(int length, int width) {
-    widget.withSize(length, width);
+  public ShuffleboardBoolean withSize(int length, int height) {
+    widget.withSize(length, height);
     return this;
   }
 
   /**
-   * @param x
-   * @param y
-   * @return
+   * Sets the position of the widget.
+   *
+   * @param x the x coordinate of the widget's position
+   * @param y the y coordinate of the widget's position
+   * @return the modified ShuffleboardBoolean object
    */
   public ShuffleboardBoolean withPosition(int x, int y) {
     widget.withPosition(x, y);
@@ -53,21 +61,27 @@ public class ShuffleboardBoolean implements ShuffleboardValue {
   }
 
   /**
-   * @return
+   * Retrieves the current value of the ShuffleboardBoolean object.
+   *
+   * @return the current value of the ShuffleboardBoolean object
    */
   public boolean get() {
     return widget.getEntry().getBoolean(def);
   }
 
   /**
-   * @param value
+   * Sets the value of the ShuffleboardBoolean object.
+   *
+   * @param value the new value to set
    */
   public void set(boolean value) {
     widget.getEntry().setBoolean(value);
   }
 
-  /* (non-Javadoc)
-   * @see frc.robot.utils.shuffleboard.ShuffleboardValue#getRaw()
+  /**
+   * Returns the Raw GenericEntry object associated with this ShuffleboardBoolean.
+   *
+   * @return the Raw GenericEntry object
    */
   @Override public GenericEntry getRaw() {
     return widget.getEntry();
