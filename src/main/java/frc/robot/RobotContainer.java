@@ -4,11 +4,12 @@ import com.pathplanner.lib.util.PPLibTelemetry;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.IOConstants;
-import frc.robot.commands.ResetGyroCommand;
-import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.swerve.commands.ResetGyroCommand;
+import frc.robot.swerve.commands.SetXCommand;
+import frc.robot.swerve.SwerveSubsystem;
 
 public class RobotContainer {
-  protected final DriveSubsystem drive = new DriveSubsystem();
+  protected final SwerveSubsystem swerve = new SwerveSubsystem();
   protected final CommandXboxController driverController = new CommandXboxController(IOConstants.DRIVER_CONTROLLER_PORT);
   protected final AutoManager auto = new AutoManager();
 
@@ -21,6 +22,7 @@ public class RobotContainer {
   }
 
   private void configureButtonBindings() {
-    driverController.a().onTrue(new ResetGyroCommand(drive));
+    driverController.a().onTrue(new ResetGyroCommand(swerve));
+    driverController.b().onTrue(new SetXCommand(swerve));
   }
 }

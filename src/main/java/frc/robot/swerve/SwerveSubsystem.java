@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.swerve;
 
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -12,13 +12,12 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
-import frc.robot.ModulePosition;
 import frc.shuffleboard.ShuffleboardBoolean;
 import frc.shuffleboard.ShuffleboardSpeed;
 
 import static frc.robot.Constants.Tabs.MATCH;
 
-public class DriveSubsystem extends SubsystemBase {
+public class SwerveSubsystem extends SubsystemBase {
   private final MAXSwerveModule frontLeft = new MAXSwerveModule(
           DriveConstants.FRONT_LEFT_DRIVING_CAN_ID,
           DriveConstants.FRONT_LEFT_TURNING_CAN_ID,
@@ -67,9 +66,11 @@ public class DriveSubsystem extends SubsystemBase {
                   backRight.getPosition()
           });
 
-  public DriveSubsystem() {
+  public SwerveSubsystem() {
     MATCH.add("Gyro", gyro);
+    // The "forward" direction will always be relative to the starting position of the Robot.
     zeroHeading();
+    resetEncoders();
 
     // Ensure this is called after all initialization is complete.
     AutoBuilder.configureHolonomic(
@@ -178,21 +179,10 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   /**
-   * Sets the wheels into an X formation to prevent movement.
-   */
-  public void setX() {
-    setModuleStates(
-            new SwerveModuleState(0, Rotation2d.fromDegrees(45)),
-            new SwerveModuleState(0, Rotation2d.fromDegrees(-45)),
-            new SwerveModuleState(0, Rotation2d.fromDegrees(-45)),
-            new SwerveModuleState(0, Rotation2d.fromDegrees(45))
-    );
-  }
-
-  /**
    * @param position The relative position of the SwerveModule.
    * @return the MAXSwerveModule associated with the ModulePosition.
    */
+  @SuppressWarnings("unused")
   public MAXSwerveModule getModule(ModulePosition position) {
     switch (position) {
       case FRONT_LEFT -> { return frontLeft; }

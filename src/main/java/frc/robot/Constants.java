@@ -6,6 +6,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import frc.robot.swerve.ModulePosition;
 
 import java.util.Map;
 
@@ -16,15 +17,10 @@ public final class Constants {
     public static final double MAX_SPEED_METERS_PER_SECOND = 4.8;
     public static final double MAX_ANGULAR_SPEED = 2 * Math.PI; // radians per second
 
-    public static final double DIRECTION_SLEW_RATE = 1.2; // radians per second
-    public static final double MAGNITUDE_SLEW_RATE = 1.8; // percent per second (1 = 100%)
-    public static final double ROTATIONAL_SLEW_RATE = 2.0; // percent per second (1 = 100%)
-
-    // Chassis configuration
-    public static final double TRACK_WIDTH = Units.inchesToMeters(32);
     // Distance between centers of right and left wheels on robot
-    public static final double WHEEL_BASE = Units.inchesToMeters(32);
+    public static final double TRACK_WIDTH = Units.inchesToMeters(32);
     // Distance between front and back wheels on robot
+    public static final double WHEEL_BASE = Units.inchesToMeters(32);
 
     public static final Map<ModulePosition, Translation2d> MODULE_TRANSLATIONS = Map.of(
             ModulePosition.FRONT_LEFT, new Translation2d(WHEEL_BASE / 2, TRACK_WIDTH / 2),

@@ -2,7 +2,7 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.commands.SwerveDriveCommand;
+import frc.robot.swerve.commands.SwerveDriveCommand;
 
 public class Robot extends TimedRobot {
   private RobotContainer container;
@@ -24,7 +24,7 @@ public class Robot extends TimedRobot {
   }
 
   @Override public void teleopInit() {
-    container.drive.setDefaultCommand(new SwerveDriveCommand(container.driverController, container.drive));
+    container.swerve.setDefaultCommand(new SwerveDriveCommand(container.driverController, container.swerve));
   }
 
   @Override public void teleopPeriodic() {
