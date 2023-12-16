@@ -57,7 +57,7 @@ public class DriveSubsystem extends SubsystemBase {
   // Odometry class for tracking robot pose
   private final SwerveDriveOdometry odometry = new SwerveDriveOdometry(
           DriveConstants.DRIVE_KINEMATICS,
-          Rotation2d.fromDegrees(getRawAngleDegrees()),
+          getHeadingRotation2d(),
           new SwerveModulePosition[] {
                   frontLeft.getPosition(),
                   frontRight.getPosition(),
@@ -90,7 +90,7 @@ public class DriveSubsystem extends SubsystemBase {
   @Override public void periodic() {
     // Update the odometry in the periodic block
     odometry.update(
-            Rotation2d.fromDegrees(getRawAngleDegrees()),
+            getHeadingRotation2d(),
             new SwerveModulePosition[] {
                     frontLeft.getPosition(),
                     frontRight.getPosition(),
@@ -129,12 +129,12 @@ public class DriveSubsystem extends SubsystemBase {
    */
   public void resetOdometry(Pose2d pose) {
     odometry.resetPosition(
-            Rotation2d.fromDegrees(getRawAngleDegrees()),
+            new Rotation2d(),
             new SwerveModulePosition[] {
-                    frontLeft.getPosition(),
-                    frontRight.getPosition(),
-                    backLeft.getPosition(),
-                    backRight.getPosition()
+                    new SwerveModulePosition(),
+                    new SwerveModulePosition(),
+                    new SwerveModulePosition(),
+                    new SwerveModulePosition()
             },
             pose);
   }
@@ -156,7 +156,7 @@ public class DriveSubsystem extends SubsystemBase {
 
     final var swerveModuleStates = DriveConstants.DRIVE_KINEMATICS.toSwerveModuleStates(
             fieldRelative
-                    ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered, Rotation2d.fromDegrees(getRawAngleDegrees()))
+                    ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered, getHeadingRotation2d())
                     : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
     setModuleStates(swerveModuleStates);
   }
