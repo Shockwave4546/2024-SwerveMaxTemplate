@@ -5,15 +5,24 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.Vector;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.*;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.shuffleboard.ShuffleboardBoolean;
 import frc.robot.shuffleboard.ShuffleboardSpeed;
+import org.photonvision.PhotonCamera;
 
 import static frc.robot.Constants.Tabs.MATCH;
 
@@ -55,8 +64,20 @@ public class SwerveSubsystem extends SubsystemBase {
   private final ShuffleboardSpeed rotSpeedMultiplier = new ShuffleboardSpeed(MATCH, "Rot Speed Multiplier", 1.0);
   private final ShuffleboardBoolean isFieldRelative = new ShuffleboardBoolean(MATCH, "Is Field Relative?", true);
 
-  // Odometry class for tracking robot pose
-  private final SwerveDriveOdometry odometry = new SwerveDriveOdometry(
+  /**
+   * Standard deviations of model states. Increase these numbers to trust your model's state estimates less. This
+   * matrix is in the form [x, y, theta]ᵀ, with units in meters and radians, then meters.
+   * Source: <a href="https://github.com/STMARobotics/frc-7028-2023/blob/5916bb426b97f10e17d9dfd5ec6c3b6fda49a7ce/src/main/java/frc/robot/subsystems/PoseEstimatorSubsystem.java">...</a>
+   */
+  private static final Vector<N3> STATE_STD_DEVS = VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(5));
+
+  /**
+   * Standard deviations of the vision measurements. Increase these numbers to trust global measurements from vision
+   * less. This matrix is in the form [x, y, theta]ᵀ, with units in meters and radians.
+   * Source: <a href="https://github.com/STMARobotics/frc-7028-2023/blob/5916bb426b97f10e17d9dfd5ec6c3b6fda49a7ce/src/main/java/frc/robot/subsystems/PoseEstimatorSubsystem.java">...</a>
+   */
+  private static final Vector<N3> VISION_MEASUREMENT_STD_DEVS = VecBuilder.fill(0.5, 0.5, Units.degreesToRadians(10));
+  private final SwerveDrivePoseEstimator poseEstimator = new SwerveDrivePoseEstimator(
           DriveConstants.DRIVE_KINEMATICS,
           getHeadingRotation2d(),
           new SwerveModulePosition[] {
@@ -64,9 +85,17 @@ public class SwerveSubsystem extends SubsystemBase {
                   frontRight.getPosition(),
                   backLeft.getPosition(),
                   backRight.getPosition()
-          });
+          },
+          new Pose2d(),
+          STATE_STD_DEVS,
+          VISION_MEASUREMENT_STD_DEVS
+  );
 
-  public SwerveSubsystem() {
+  private final PhotonCamera camera;
+  private double previousPipelineTimestamp = 0.0;
+
+  public SwerveSubsystem(PhotonCamera camera) {
+    this.camera = camera;
     MATCH.add("Gyro", gyro);
     // The "forward" direction will always be relative to the starting position of the Robot.
     zeroHeading();
@@ -90,7 +119,7 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   @Override public void periodic() {
-    odometry.update(
+    poseEstimator.update(
             getHeadingRotation2d(),
             new SwerveModulePosition[] {
                     frontLeft.getPosition(),
@@ -98,6 +127,16 @@ public class SwerveSubsystem extends SubsystemBase {
                     backLeft.getPosition(),
                     backRight.getPosition()
             });
+
+    final var pipelineResult = camera.getLatestResult();
+    final var resultTimestamp = pipelineResult.getTimestampSeconds();
+    if (resultTimestamp != previousPipelineTimestamp && pipelineResult.hasTargets()) {
+      previousPipelineTimestamp = resultTimestamp;
+      final var target = pipelineResult.getBestTarget();
+      final var fiducialId = target.getFiducialId();
+      // TODO: 12/16/2023 Do later.
+      System.out.println("fiducialId = " + fiducialId);
+    }
   }
 
   /**
@@ -124,7 +163,7 @@ public class SwerveSubsystem extends SubsystemBase {
    * @return The pose.
    */
   public Pose2d getPose() {
-    return odometry.getPoseMeters();
+    return poseEstimator.getEstimatedPosition();
   }
 
   /**
@@ -133,7 +172,7 @@ public class SwerveSubsystem extends SubsystemBase {
    * @param pose The pose to which to set the odometry.
    */
   public void resetOdometry(Pose2d pose) {
-    odometry.resetPosition(
+    poseEstimator.resetPosition(
             new Rotation2d(),
             new SwerveModulePosition[] {
                     new SwerveModulePosition(),
