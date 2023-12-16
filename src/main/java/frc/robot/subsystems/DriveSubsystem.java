@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.ModulePosition;
+import frc.shuffleboard.ShuffleboardBoolean;
 import frc.shuffleboard.ShuffleboardSpeed;
 
 import static frc.robot.Constants.Tabs.MATCH;
@@ -51,8 +52,9 @@ public class DriveSubsystem extends SubsystemBase {
   );
 
   private final AHRS gyro = new AHRS();
-  private final ShuffleboardSpeed DRIVE_SPEED_MULTIPLIER = new ShuffleboardSpeed(MATCH, "Drive Speed Multiplier", 0.8);
-  private final ShuffleboardSpeed ROT_SPEED_MULTIPLIER = new ShuffleboardSpeed(MATCH, "Rot Speed Multiplier", 1.0);
+  private final ShuffleboardSpeed driveSpeedMultiplier = new ShuffleboardSpeed(MATCH, "Drive Speed Multiplier", 0.8);
+  private final ShuffleboardSpeed rotSpeedMultiplier = new ShuffleboardSpeed(MATCH, "Rot Speed Multiplier", 1.0);
+  private final ShuffleboardBoolean isFieldRelative = new ShuffleboardBoolean(MATCH, "Is Field Relative?", true);
 
   // Odometry class for tracking robot pose
   private final SwerveDriveOdometry odometry = new SwerveDriveOdometry(
@@ -86,10 +88,7 @@ public class DriveSubsystem extends SubsystemBase {
     );
   }
 
-
-
   @Override public void periodic() {
-    // Update the odometry in the periodic block
     odometry.update(
             getHeadingRotation2d(),
             new SwerveModulePosition[] {
@@ -112,6 +111,10 @@ public class DriveSubsystem extends SubsystemBase {
             backLeft.getState(),
             backRight.getState()
     );
+  }
+
+  public boolean isFieldRelative() {
+    return isFieldRelative.get();
   }
 
   /**
@@ -151,9 +154,9 @@ public class DriveSubsystem extends SubsystemBase {
    */
   public void drive(double xSpeed, double ySpeed, double rotSpeed, boolean fieldRelative) {
     // Convert the commanded speeds into the correct units for the drivetrain
-    final double xSpeedDelivered = xSpeed * DriveConstants.MAX_SPEED_METERS_PER_SECOND * DRIVE_SPEED_MULTIPLIER.get();
-    final double ySpeedDelivered = ySpeed * DriveConstants.MAX_SPEED_METERS_PER_SECOND * DRIVE_SPEED_MULTIPLIER.get();
-    final double rotDelivered = rotSpeed * DriveConstants.MAX_ANGULAR_SPEED * ROT_SPEED_MULTIPLIER.get();
+    final double xSpeedDelivered = xSpeed * DriveConstants.MAX_SPEED_METERS_PER_SECOND * driveSpeedMultiplier.get();
+    final double ySpeedDelivered = ySpeed * DriveConstants.MAX_SPEED_METERS_PER_SECOND * driveSpeedMultiplier.get();
+    final double rotDelivered = rotSpeed * DriveConstants.MAX_ANGULAR_SPEED * rotSpeedMultiplier.get();
 
     final var swerveModuleStates = DriveConstants.DRIVE_KINEMATICS.toSwerveModuleStates(
             fieldRelative
@@ -233,15 +236,6 @@ public class DriveSubsystem extends SubsystemBase {
   /**
    * Returns the heading of the robot.
    *
-   * @return The robot's heading in degrees, from -180 to 180
-   */
-  public double getHeading() {
-    return Rotation2d.fromDegrees(getRawAngleDegrees()).getDegrees();
-  }
-
-  /**
-   * Returns the heading of the robot.
-   *
    * @return The robot's heading as a Rotation2d.
    */
   public Rotation2d getHeadingRotation2d() {
@@ -256,14 +250,5 @@ public class DriveSubsystem extends SubsystemBase {
    */
   private double getRawAngleDegrees() {
     return (DriveConstants.GYRO_REVERSED ? -1.0 : 1.0) * gyro.getFusedHeading();
-  }
-
-  /**
-   * Returns the turn rate of the robot.
-   *
-   * @return The turn rate of the robot, in degrees per second.
-   */
-  public double getTurnRate() {
-    return (DriveConstants.GYRO_REVERSED ? -1.0 : 1.0) * gyro.getRate();
   }
 }

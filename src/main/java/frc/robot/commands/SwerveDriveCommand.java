@@ -9,7 +9,6 @@ import frc.robot.subsystems.DriveSubsystem;
 import frc.shuffleboard.ShuffleboardBoolean;
 
 public class SwerveDriveCommand extends Command {
-  private final ShuffleboardBoolean isFieldRelative = new ShuffleboardBoolean(Constants.Tabs.MATCH, "Is Field Relative?", true);
   private final CommandXboxController controller;
   private final DriveSubsystem drive;
 
@@ -24,7 +23,7 @@ public class SwerveDriveCommand extends Command {
             MathUtil.applyDeadband(controller.getLeftY(), IOConstants.DRIVE_DEADBAND),
             MathUtil.applyDeadband(controller.getLeftX(), IOConstants.DRIVE_DEADBAND),
             MathUtil.applyDeadband(controller.getRightX(), IOConstants.DRIVE_DEADBAND),
-            isFieldRelative.get()
+            drive.isFieldRelative()
     );
   }
 }
