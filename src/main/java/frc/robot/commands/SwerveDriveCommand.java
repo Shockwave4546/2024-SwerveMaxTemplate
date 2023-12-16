@@ -7,7 +7,6 @@ import frc.robot.Constants;
 import frc.robot.Constants.IOConstants;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.shuffleboard.ShuffleboardBoolean;
-import frc.shuffleboard.ShuffleboardDouble;
 
 public class SwerveDriveCommand extends Command {
   private final ShuffleboardBoolean isFieldRelative = new ShuffleboardBoolean(Constants.Tabs.MATCH, "Is Field Relative?", true);
