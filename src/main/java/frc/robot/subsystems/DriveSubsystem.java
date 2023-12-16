@@ -158,7 +158,6 @@ public class DriveSubsystem extends SubsystemBase {
             fieldRelative
                     ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered, Rotation2d.fromDegrees(getRawAngleDegrees()))
                     : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
-    SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, DriveConstants.MAX_SPEED_METERS_PER_SECOND);
     setModuleStates(swerveModuleStates);
   }
 
@@ -254,7 +253,7 @@ public class DriveSubsystem extends SubsystemBase {
    * @return The properly negated angle in degrees.
    */
   private double getRawAngleDegrees() {
-    return (DriveConstants.GYRO_REVERSED ? -1.0 : 1.0) * gyro.getAngle();
+    return (DriveConstants.GYRO_REVERSED ? -1.0 : 1.0) * gyro.getFusedHeading();
   }
 
   /**
