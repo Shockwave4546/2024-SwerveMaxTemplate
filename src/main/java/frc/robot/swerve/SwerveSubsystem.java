@@ -5,6 +5,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -16,6 +17,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.AutoConstants;
@@ -23,6 +25,8 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.shuffleboard.ShuffleboardBoolean;
 import frc.robot.shuffleboard.ShuffleboardSpeed;
 import org.photonvision.PhotonCamera;
+
+import java.io.IOException;
 
 import static frc.robot.Constants.Tabs.MATCH;
 
@@ -91,12 +95,20 @@ public class SwerveSubsystem extends SubsystemBase {
           VISION_MEASUREMENT_STD_DEVS
   );
 
-//  private final PhotonCamera camera;
+  private final PhotonCamera camera;
+  private final AprilTagFieldLayout layout;
   private double previousPipelineTimestamp = 0.0;
   private boolean isX = false;
 
-  public SwerveSubsystem() {
-//    this.camera = camera;
+  public SwerveSubsystem(PhotonCamera camera) {
+    this.camera = camera;
+    try {
+      this.layout = AprilTagFieldLayout.loadFromResource("/deploy/exampleAprilLayout.json");
+      layout.setOrigin(DriverStation.getAlliance().get() == DriverStation.Alliance.Blue ? AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide : AprilTagFieldLayout.OriginPosition.kRedAllianceWallRightSide);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+
     MATCH.add("Gyro", gyro);
     // The "forward" direction will always be relative to the starting position of the Robot.
     zeroHeading();
@@ -129,15 +141,20 @@ public class SwerveSubsystem extends SubsystemBase {
                     backRight.getPosition()
             });
 
-//    final var pipelineResult = camera.getLatestResult();
-//    final var resultTimestamp = pipelineResult.getTimestampSeconds();
-//    if (resultTimestamp != previousPipelineTimestamp && pipelineResult.hasTargets()) {
-//      previousPipelineTimestamp = resultTimestamp;
-//      final var target = pipelineResult.getBestTarget();
-//      final var fiducialId = target.getFiducialId();
-//      // TODO: 12/16/2023 Do later.
-//      System.out.println("fiducialId = " + fiducialId);
-//    }
+    final var pipelineResult = camera.getLatestResult();
+    final var resultTimestamp = pipelineResult.getTimestampSeconds();
+    if (resultTimestamp != previousPipelineTimestamp && pipelineResult.hasTargets()) {
+      previousPipelineTimestamp = resultTimestamp;
+      final var target = pipelineResult.getBestTarget();
+      final var fiducialId = target.getFiducialId();
+      final var targetPose = layout.getTagPose(fiducialId);
+      if (target.getPoseAmbiguity() <= 0.2 && fiducialId >= 0 && targetPose.isPresent()) {
+        final var camToTarget = target.getBestCameraToTarget();
+        final var camPose = targetPose.get().transformBy(camToTarget.inverse());
+        final var visioMeasurement = camPose.transformBy(DriveConstants.CAMERA_TO_ROBOT);
+        poseEstimator.addVisionMeasurement(visioMeasurement.toPose2d(), resultTimestamp);
+      }
+    }
   }
 
   /**
@@ -250,7 +267,7 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   /**
-   * Sets the swerve ModuleStates.
+   * Sets the swerve ModuleStates. (FL, FR, BL, BR)
    *
    * @param desiredStates The desired SwerveModule states.
    */
