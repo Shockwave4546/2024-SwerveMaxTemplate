@@ -100,15 +100,9 @@ public class SwerveSubsystem extends SubsystemBase {
   private double previousPipelineTimestamp = 0.0;
   private boolean isX = false;
 
-  public SwerveSubsystem(PhotonCamera camera) {
+  public SwerveSubsystem(PhotonCamera camera, AprilTagFieldLayout layout) {
     this.camera = camera;
-    try {
-      this.layout = AprilTagFieldLayout.loadFromResource("/deploy/exampleAprilLayout.json");
-      layout.setOrigin(DriverStation.getAlliance().get() == DriverStation.Alliance.Blue ? AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide : AprilTagFieldLayout.OriginPosition.kRedAllianceWallRightSide);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-
+    this.layout = layout;
     MATCH.add("Gyro", gyro);
     // The "forward" direction will always be relative to the starting position of the Robot.
     zeroHeading();
