@@ -91,11 +91,12 @@ public class SwerveSubsystem extends SubsystemBase {
           VISION_MEASUREMENT_STD_DEVS
   );
 
-  private final PhotonCamera camera;
+//  private final PhotonCamera camera;
   private double previousPipelineTimestamp = 0.0;
+  private boolean isX = false;
 
-  public SwerveSubsystem(PhotonCamera camera) {
-    this.camera = camera;
+  public SwerveSubsystem() {
+//    this.camera = camera;
     MATCH.add("Gyro", gyro);
     // The "forward" direction will always be relative to the starting position of the Robot.
     zeroHeading();
@@ -128,15 +129,15 @@ public class SwerveSubsystem extends SubsystemBase {
                     backRight.getPosition()
             });
 
-    final var pipelineResult = camera.getLatestResult();
-    final var resultTimestamp = pipelineResult.getTimestampSeconds();
-    if (resultTimestamp != previousPipelineTimestamp && pipelineResult.hasTargets()) {
-      previousPipelineTimestamp = resultTimestamp;
-      final var target = pipelineResult.getBestTarget();
-      final var fiducialId = target.getFiducialId();
-      // TODO: 12/16/2023 Do later.
-      System.out.println("fiducialId = " + fiducialId);
-    }
+//    final var pipelineResult = camera.getLatestResult();
+//    final var resultTimestamp = pipelineResult.getTimestampSeconds();
+//    if (resultTimestamp != previousPipelineTimestamp && pipelineResult.hasTargets()) {
+//      previousPipelineTimestamp = resultTimestamp;
+//      final var target = pipelineResult.getBestTarget();
+//      final var fiducialId = target.getFiducialId();
+//      // TODO: 12/16/2023 Do later.
+//      System.out.println("fiducialId = " + fiducialId);
+//    }
   }
 
   /**
@@ -151,6 +152,19 @@ public class SwerveSubsystem extends SubsystemBase {
             backLeft.getState(),
             backRight.getState()
     );
+  }
+
+  private void setX() {
+    setModuleStates(
+            new SwerveModuleState(0, Rotation2d.fromDegrees(45)),
+            new SwerveModuleState(0, Rotation2d.fromDegrees(-45)),
+            new SwerveModuleState(0, Rotation2d.fromDegrees(-45)),
+            new SwerveModuleState(0, Rotation2d.fromDegrees(45))
+    );
+  }
+
+  public void toggleX() {
+    this.isX = !this.isX;
   }
 
   public boolean isFieldRelative() {
@@ -193,6 +207,10 @@ public class SwerveSubsystem extends SubsystemBase {
    *                      field.
    */
   public void drive(double xSpeed, double ySpeed, double rotSpeed, boolean fieldRelative) {
+    if (isX) {
+      setX();
+      return;
+    }
     // Convert the commanded speeds into the correct units for the drivetrain
     final double xSpeedDelivered = xSpeed * DriveConstants.MAX_SPEED_METERS_PER_SECOND * driveSpeedMultiplier.get();
     final double ySpeedDelivered = ySpeed * DriveConstants.MAX_SPEED_METERS_PER_SECOND * driveSpeedMultiplier.get();
@@ -277,6 +295,6 @@ public class SwerveSubsystem extends SubsystemBase {
    * @return The properly negated angle in degrees.
    */
   private double getRawAngleDegrees() {
-    return (DriveConstants.GYRO_REVERSED ? -1.0 : 1.0) * gyro.getFusedHeading();
+    return (DriveConstants.GYRO_REVERSED ? -1.0 : 1.0) * gyro.getAngle();
   }
 }

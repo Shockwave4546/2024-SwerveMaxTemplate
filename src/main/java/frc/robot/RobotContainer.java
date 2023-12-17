@@ -10,8 +10,8 @@ import frc.robot.swerve.SwerveSubsystem;
 import org.photonvision.PhotonCamera;
 
 public class RobotContainer {
-  protected final PhotonCamera camera = new PhotonCamera("OV9281");
-  protected final SwerveSubsystem swerve = new SwerveSubsystem(camera);
+//  protected final PhotonCamera camera = new PhotonCamera("OV9281");
+  protected final SwerveSubsystem swerve = new SwerveSubsystem();
   protected final CommandXboxController driverController = new CommandXboxController(IOConstants.DRIVER_CONTROLLER_PORT);
   protected final AutoManager auto = new AutoManager();
 
