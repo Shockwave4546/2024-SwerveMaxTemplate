@@ -16,7 +16,7 @@ public class AutoManager {
    * Registers all Commands into NamedCommands.
    */
   public AutoManager() {
-    NamedCommands.registerCommand("Print", new PrintCommand("Hello world!!!"));
+    NamedCommands.registerCommand("Print", new PrintCommand("Hello dwqdsacxE3DEQFWcdsdfdsdfdwedfdewqwdfvfdewwedfvfdewqwffdwworld!!!\n\n\n\n\n\n\n\n\n\nfdsfdsaf"));
     Constants.Tabs.MATCH.add("Autonomous", chooser).withSize(3, 2);
   }
 

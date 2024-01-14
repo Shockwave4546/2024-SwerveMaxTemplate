@@ -16,6 +16,8 @@ public class Robot extends TimedRobot {
   }
 
   @Override public void autonomousInit() {
+    container.swerve.resetEncoders();
+    container.swerve.zeroHeading();
     container.auto.executeRoutine();
   }
 

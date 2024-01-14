@@ -5,6 +5,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -24,6 +25,8 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.shuffleboard.ShuffleboardBoolean;
 import frc.robot.shuffleboard.ShuffleboardSpeed;
 import org.photonvision.PhotonCamera;
+
+import java.io.IOException;
 
 import static frc.robot.Constants.Tabs.MATCH;
 
@@ -93,10 +96,13 @@ public class SwerveSubsystem extends SubsystemBase {
   );
 
   private final PhotonCamera camera;
+  private final AprilTagFieldLayout layout;
   private double previousPipelineTimestamp = 0.0;
+  private boolean isX = false;
 
-  public SwerveSubsystem(PhotonCamera camera) {
+  public SwerveSubsystem(PhotonCamera camera, AprilTagFieldLayout layout) {
     this.camera = camera;
+    this.layout = layout;
     MATCH.add("Gyro", gyro);
     // The "forward" direction will always be relative to the starting position of the Robot.
     zeroHeading();
@@ -136,8 +142,13 @@ public class SwerveSubsystem extends SubsystemBase {
       previousPipelineTimestamp = resultTimestamp;
       final var target = pipelineResult.getBestTarget();
       final var fiducialId = target.getFiducialId();
-      // TODO: 12/16/2023 Do later.
-      System.out.println("fiducialId = " + fiducialId);
+      final var targetPose = layout.getTagPose(fiducialId);
+      if (target.getPoseAmbiguity() <= 0.2 && fiducialId >= 0 && targetPose.isPresent()) {
+        final var camToTarget = target.getBestCameraToTarget();
+        final var camPose = targetPose.get().transformBy(camToTarget.inverse());
+        final var visioMeasurement = camPose.transformBy(DriveConstants.CAMERA_TO_ROBOT);
+        poseEstimator.addVisionMeasurement(visioMeasurement.toPose2d(), resultTimestamp);
+      }
     }
   }
 
@@ -162,6 +173,19 @@ public class SwerveSubsystem extends SubsystemBase {
             backLeft.getState(),
             backRight.getState()
     );
+  }
+
+  private void setX() {
+    setModuleStates(
+            new SwerveModuleState(0, Rotation2d.fromDegrees(45)),
+            new SwerveModuleState(0, Rotation2d.fromDegrees(-45)),
+            new SwerveModuleState(0, Rotation2d.fromDegrees(-45)),
+            new SwerveModuleState(0, Rotation2d.fromDegrees(45))
+    );
+  }
+
+  public void toggleX() {
+    this.isX = !this.isX;
   }
 
   public boolean isFieldRelative() {
@@ -204,6 +228,10 @@ public class SwerveSubsystem extends SubsystemBase {
    *                      field.
    */
   public void drive(double xSpeed, double ySpeed, double rotSpeed, boolean fieldRelative) {
+    if (isX) {
+      setX();
+      return;
+    }
     // Convert the commanded speeds into the correct units for the drivetrain
     final double xSpeedDelivered = xSpeed * DriveConstants.MAX_SPEED_METERS_PER_SECOND * driveSpeedMultiplier.get();
     final double ySpeedDelivered = ySpeed * DriveConstants.MAX_SPEED_METERS_PER_SECOND * driveSpeedMultiplier.get();
@@ -243,7 +271,7 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   /**
-   * Sets the swerve ModuleStates.
+   * Sets the swerve ModuleStates. (FL, FR, BL, BR)
    *
    * @param desiredStates The desired SwerveModule states.
    */
@@ -288,6 +316,6 @@ public class SwerveSubsystem extends SubsystemBase {
    * @return The properly negated angle in degrees.
    */
   private double getRawAngleDegrees() {
-    return (DriveConstants.GYRO_REVERSED ? -1.0 : 1.0) * gyro.getFusedHeading();
+    return (DriveConstants.GYRO_REVERSED ? -1.0 : 1.0) * gyro.getAngle();
   }
 }

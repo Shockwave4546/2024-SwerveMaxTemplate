@@ -1,6 +1,6 @@
 package frc.robot;
 
-import com.revrobotics.CANSparkBase;
+import com.revrobotics.CANSparkMax.IdleMode;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
@@ -9,8 +9,6 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import frc.robot.swerve.ModulePosition;
 
 import java.util.Map;
-
-import static com.revrobotics.CANSparkBase.*;
 
 public final class Constants {
   public static final class DriveConstants {
