@@ -1,7 +1,7 @@
 package frc.robot;
 
-import com.revrobotics.CANSparkMax.IdleMode;
-import edu.wpi.first.math.geometry.Translation2d;
+import com.revrobotics.CANSparkBase.IdleMode;
+import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -55,6 +55,8 @@ public final class Constants {
     public static final int FRONT_LEFT_TURNING_CAN_ID = 23;
 
     public static final boolean GYRO_REVERSED = true;
+
+    public static final Transform3d CAMERA_TO_ROBOT = new Transform3d(new Translation3d(0.0, 0.0, 0.0), new Rotation3d());
   }
 
   public static final class ModuleConstants {
