@@ -16,6 +16,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.AutoConstants;
@@ -114,6 +115,7 @@ public class SwerveSubsystem extends SubsystemBase {
                     DriveConstants.WHEEL_BASE / 2,
                     new ReplanningConfig()
             ),
+            this::shouldFlipPath,
             this
     );
   }
@@ -137,6 +139,15 @@ public class SwerveSubsystem extends SubsystemBase {
       // TODO: 12/16/2023 Do later.
       System.out.println("fiducialId = " + fiducialId);
     }
+  }
+
+  /**
+   * Red = flip, since PathPlanner uses blue as the default wall.
+   *
+   * @return whether the autonomous path should be flipped dependent on the alliance color.
+   */
+  private boolean shouldFlipPath() {
+    return DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == DriverStation.Alliance.Red;
   }
 
   /**

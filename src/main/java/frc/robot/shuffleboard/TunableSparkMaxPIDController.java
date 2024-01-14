@@ -1,6 +1,6 @@
 package frc.robot.shuffleboard;
 
-import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.SparkPIDController;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 
@@ -8,14 +8,14 @@ import edu.wpi.first.util.sendable.SendableBuilder;
  * Wraps [SparkMaxPIDController] because it isn't natively supported by Shuffleboard.
  */
 public class TunableSparkMaxPIDController implements Sendable {
-  private final SparkMaxPIDController child;
+  private final SparkPIDController child;
 
   /**
    * Constructs a new instance of the TunableSparkMaxPIDController with the specified child controller.
    *
    * @param child the child controller to use for control operations
    */
-  public TunableSparkMaxPIDController(SparkMaxPIDController child) {
+  public TunableSparkMaxPIDController(SparkPIDController child) {
     this.child = child;
   }
 

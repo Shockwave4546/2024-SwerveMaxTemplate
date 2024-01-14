@@ -1,11 +1,7 @@
 package frc.robot.swerve;
 
-import com.revrobotics.AbsoluteEncoder;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
-import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.*;
+import com.revrobotics.SparkAbsoluteEncoder.Type;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -13,12 +9,14 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import frc.robot.Constants.ModuleConstants;
 import frc.robot.shuffleboard.TunableSparkMaxPIDController;
 
+import static com.revrobotics.CANSparkLowLevel.*;
+
 public class MAXSwerveModule {
   private final RelativeEncoder drivingEncoder;
   private final AbsoluteEncoder turningEncoder;
 
-  private final SparkMaxPIDController drivingPIDController;
-  private final SparkMaxPIDController turningPIDController;
+  private final SparkPIDController drivingPIDController;
+  private final SparkPIDController turningPIDController;
 
   private final double chassisAngularOffset;
   private SwerveModuleState desiredState = new SwerveModuleState(0.0, new Rotation2d());
