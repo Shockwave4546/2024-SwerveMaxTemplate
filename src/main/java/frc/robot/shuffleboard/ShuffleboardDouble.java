@@ -10,7 +10,6 @@ import java.util.Map;
 /**
  * A class representing a double value on the Shuffleboard dashboard.
  */
-@SuppressWarnings("unused")
 public class ShuffleboardDouble implements ShuffleboardValue {
   protected static final double DEFAULT_VALUE = 0.0;
   private final SimpleWidget widget;

@@ -5,7 +5,6 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 /**
  * A Shuffleboard control for adjusting the speed value.
  */
-@SuppressWarnings("unused")
 public class ShuffleboardSpeed extends ShuffleboardDouble {
   /**
    * Creates a ShuffleboardSpeed widget with the given name and default value,

@@ -1,15 +1,18 @@
 package frc.robot.swerve;
 
-import com.revrobotics.*;
+import com.revrobotics.AbsoluteEncoder;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkAbsoluteEncoder.Type;
+import com.revrobotics.SparkPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import frc.robot.Constants.ModuleConstants;
-import frc.robot.shuffleboard.TunableSparkMaxPIDController;
+import frc.robot.shuffleboard.TunableSparkPIDController;
 
-import static com.revrobotics.CANSparkLowLevel.*;
+import static com.revrobotics.CANSparkLowLevel.MotorType;
 
 public class MAXSwerveModule {
   private final RelativeEncoder drivingEncoder;
@@ -105,13 +108,13 @@ public class MAXSwerveModule {
     tab.addNumber("(Driving Applied Duty Cycle", drivingSparkMax::getAppliedOutput).withSize(4, 1).withPosition(0, 1);
     tab.addNumber("(Driving) Applied Amperage", drivingSparkMax::getOutputCurrent).withSize(4, 1).withPosition(0, 2);
     tab.addNumber("(Driving) Temperature (C)", drivingSparkMax::getMotorTemperature).withSize(4, 1).withPosition(0, 3);
-    tab.add("(Driving) PID Controller", new TunableSparkMaxPIDController(drivingPIDController)).withSize(2, 3).withPosition(4, 0);
+    tab.add("(Driving) PID Controller", new TunableSparkPIDController(drivingPIDController)).withSize(2, 3).withPosition(4, 0);
 
     tab.add("(Turning) ID", turningCANId).withSize(4, 1).withPosition(0, 4);
     tab.addNumber("(Turning) Applied Duty Cycle", turningSparkMax::getAppliedOutput).withSize(4, 1).withPosition(0, 5);
     tab.addNumber("(Turning) Applied Amperage", turningSparkMax::getOutputCurrent).withSize(4, 1).withPosition(0, 6);
     tab.addNumber("(Turning) Temperature (C)", turningSparkMax::getMotorTemperature).withSize(4, 1).withPosition(0, 7);
-    tab.add("(Turning) Turning PID Controller", new TunableSparkMaxPIDController(turningPIDController)).withSize(2, 3).withPosition(4, 4);
+    tab.add("(Turning) Turning PID Controller", new TunableSparkPIDController(turningPIDController)).withSize(2, 3).withPosition(4, 4);
   }
 
   /**

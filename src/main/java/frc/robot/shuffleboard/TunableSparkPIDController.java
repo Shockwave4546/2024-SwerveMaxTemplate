@@ -7,7 +7,7 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 /**
  * Wraps [SparkMaxPIDController] because it isn't natively supported by Shuffleboard.
  */
-public class TunableSparkMaxPIDController implements Sendable {
+public class TunableSparkPIDController implements Sendable {
   private final SparkPIDController child;
 
   /**
@@ -15,7 +15,7 @@ public class TunableSparkMaxPIDController implements Sendable {
    *
    * @param child the child controller to use for control operations
    */
-  public TunableSparkMaxPIDController(SparkPIDController child) {
+  public TunableSparkPIDController(SparkPIDController child) {
     this.child = child;
   }
 

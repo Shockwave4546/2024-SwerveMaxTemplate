@@ -26,8 +26,6 @@ import frc.robot.shuffleboard.ShuffleboardBoolean;
 import frc.robot.shuffleboard.ShuffleboardSpeed;
 import org.photonvision.PhotonCamera;
 
-import java.io.IOException;
-
 import static frc.robot.Constants.Tabs.MATCH;
 
 public class SwerveSubsystem extends SubsystemBase {
@@ -242,6 +240,13 @@ public class SwerveSubsystem extends SubsystemBase {
                     ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered, getHeadingRotation2d())
                     : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
     setModuleStates(swerveModuleStates);
+  }
+
+  /**
+   * Stops the robot.
+   */
+  public void stop() {
+    drive(0.0, 0.0, 0.0, false);
   }
 
   /**
