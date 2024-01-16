@@ -1,45 +1,36 @@
 package frc.robot;
 
 import com.pathplanner.lib.util.PPLibTelemetry;
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.IOConstants;
 import frc.robot.swerve.SwerveSubsystem;
 import frc.robot.swerve.commands.ChaseTagCommand;
-import frc.robot.swerve.commands.ResetGyroCommand;
+import frc.robot.swerve.commands.ResetPoseCommand;
 import frc.robot.swerve.commands.SetXCommand;
-import org.photonvision.PhotonCamera;
-
-import java.io.IOException;
+import frc.robot.vision.PoseEstimatorSubsystem;
+import frc.robot.vision.VisionSubsystem;
 
 public class RobotContainer {
-  protected final PhotonCamera camera = new PhotonCamera("OV9281");
-  protected final SwerveSubsystem swerve;
+  protected final VisionSubsystem vision = new VisionSubsystem();
+  protected final SwerveSubsystem swerve = new SwerveSubsystem();
+  protected final PoseEstimatorSubsystem poseEstimator = new PoseEstimatorSubsystem(swerve, vision);
   protected final CommandXboxController driverController = new CommandXboxController(IOConstants.DRIVER_CONTROLLER_PORT);
-  protected final AutoManager auto;
+  protected final AutoManager auto = new AutoManager(swerve, poseEstimator);
 
   public RobotContainer() {
-  
-      // final var layout = AprilTagFieldLayout.loadFromResource("/deploy/exampleAprilLayout.json");
-      // Uses blue side as default in the event that the alliance color is null.
-      final var alliance = DriverStation.getAlliance().isPresent() ? DriverStation.getAlliance().get() : DriverStation.Alliance.Blue;
-      // layout.setOrigin(alliance == DriverStation.Alliance.Blue ? AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide : AprilTagFieldLayout.OriginPosition.kRedAllianceWallRightSide);
-      this.swerve = new SwerveSubsystem(camera);
-
+    vision.setPoseEstimator(poseEstimator);
 
     configureButtonBindings();
 
     if (DriverStation.getMatchType() != DriverStation.MatchType.None) {
       PPLibTelemetry.enableCompetitionMode();
     }
-
-    this.auto = new AutoManager();
   }
 
   private void configureButtonBindings() {
-    driverController.a().onTrue(new ResetGyroCommand(swerve));
+    driverController.a().onTrue(new ResetPoseCommand(poseEstimator));
     driverController.b().onTrue(new SetXCommand(swerve));
-    driverController.x().whileTrue(new ChaseTagCommand(camera, swerve));
+    driverController.x().whileTrue(new ChaseTagCommand(vision, poseEstimator, swerve));
   }
 }

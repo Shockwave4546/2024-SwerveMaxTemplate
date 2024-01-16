@@ -1,30 +1,16 @@
 package frc.robot.swerve;
 
 import com.kauailabs.navx.frc.AHRS;
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
-import com.pathplanner.lib.util.PIDConstants;
-import com.pathplanner.lib.util.ReplanningConfig;
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.Vector;
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.shuffleboard.ShuffleboardBoolean;
 import frc.robot.shuffleboard.ShuffleboardSpeed;
-import org.photonvision.PhotonCamera;
 
 import static frc.robot.Constants.Tabs.MATCH;
 
@@ -65,98 +51,11 @@ public class SwerveSubsystem extends SubsystemBase {
   private final ShuffleboardSpeed driveSpeedMultiplier = new ShuffleboardSpeed(MATCH, "Drive Speed Multiplier", 0.8);
   private final ShuffleboardSpeed rotSpeedMultiplier = new ShuffleboardSpeed(MATCH, "Rot Speed Multiplier", 1.0);
   private final ShuffleboardBoolean isFieldRelative = new ShuffleboardBoolean(MATCH, "Is Field Relative?", true);
-
-  /**
-   * Standard deviations of model states. Increase these numbers to trust your model's state estimates less. This
-   * matrix is in the form [x, y, theta]ᵀ, with units in meters and radians, then meters.
-   * Source: <a href="https://github.com/STMARobotics/frc-7028-2023/blob/5916bb426b97f10e17d9dfd5ec6c3b6fda49a7ce/src/main/java/frc/robot/subsystems/PoseEstimatorSubsystem.java">...</a>
-   */
-  private static final Vector<N3> STATE_STD_DEVS = VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(5));
-
-  /**
-   * Standard deviations of the vision measurements. Increase these numbers to trust global measurements from vision
-   * less. This matrix is in the form [x, y, theta]ᵀ, with units in meters and radians.
-   * Source: <a href="https://github.com/STMARobotics/frc-7028-2023/blob/5916bb426b97f10e17d9dfd5ec6c3b6fda49a7ce/src/main/java/frc/robot/subsystems/PoseEstimatorSubsystem.java">...</a>
-   */
-  private static final Vector<N3> VISION_MEASUREMENT_STD_DEVS = VecBuilder.fill(0.5, 0.5, Units.degreesToRadians(10));
-  private final SwerveDrivePoseEstimator poseEstimator = new SwerveDrivePoseEstimator(
-          DriveConstants.DRIVE_KINEMATICS,
-          getHeadingRotation2d(),
-          new SwerveModulePosition[] {
-                  frontLeft.getPosition(),
-                  frontRight.getPosition(),
-                  backLeft.getPosition(),
-                  backRight.getPosition()
-          },
-          new Pose2d(),
-          STATE_STD_DEVS,
-          VISION_MEASUREMENT_STD_DEVS
-  );
-
-  private final PhotonCamera camera;
-  // private final AprilTagFieldLayout layout;
-  private double previousPipelineTimestamp = 0.0;
   private boolean isX = false;
 
-  public SwerveSubsystem(PhotonCamera camera) {
-    this.camera = camera;
-    // this.layout = layout;
+  public SwerveSubsystem() {
     MATCH.add("Gyro", gyro);
-    // The "forward" direction will always be relative to the starting position of the Robot.
-    zeroHeading();
     resetEncoders();
-
-    // Ensure this is called after all initialization is complete.
-    AutoBuilder.configureHolonomic(
-            this::getPose,
-            this::resetOdometry,
-            this::getRelativeChassisSpeed,
-            this::drive,
-            new HolonomicPathFollowerConfig(
-                    new PIDConstants(AutoConstants.DRIVING_P, AutoConstants.DRIVING_I, AutoConstants.DRIVING_D),
-                    new PIDConstants(AutoConstants.TURNING_P, AutoConstants.TURNING_I, AutoConstants.TURNING_D),
-                    DriveConstants.MAX_SPEED_METERS_PER_SECOND,
-                    DriveConstants.WHEEL_BASE / 2,
-                    new ReplanningConfig()
-            ),
-            this::shouldFlipPath,
-            this
-    );
-  }
-
-  @Override public void periodic() {
-    poseEstimator.update(
-            getHeadingRotation2d(),
-            new SwerveModulePosition[] {
-                    frontLeft.getPosition(),
-                    frontRight.getPosition(),
-                    backLeft.getPosition(),
-                    backRight.getPosition()
-            });
-
-    final var pipelineResult = camera.getLatestResult();
-    final var resultTimestamp = pipelineResult.getTimestampSeconds();
-    if (resultTimestamp != previousPipelineTimestamp && pipelineResult.hasTargets()) {
-      previousPipelineTimestamp = resultTimestamp;
-      final var target = pipelineResult.getBestTarget();
-      final var fiducialId = target.getFiducialId();
-      // final var targetPose = layout.getTagPose(fiducialId);
-      // if (target.getPoseAmbiguity() <= 0.2 && fiducialId >= 0 && targetPose.isPresent()) {
-      //   final var camToTarget = target.getBestCameraToTarget();
-      //   final var camPose = targetPose.get().transformBy(camToTarget.inverse());
-      //   final var visioMeasurement = camPose.transformBy(DriveConstants.CAMERA_TO_ROBOT);
-      //   poseEstimator.addVisionMeasurement(visioMeasurement.toPose2d(), resultTimestamp);
-      // }
-    }
-  }
-
-  /**
-   * Red = flip, since PathPlanner uses blue as the default wall.
-   *
-   * @return whether the autonomous path should be flipped dependent on the alliance color.
-   */
-  private boolean shouldFlipPath() {
-    return DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == DriverStation.Alliance.Red;
   }
 
   /**
@@ -188,32 +87,6 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public boolean isFieldRelative() {
     return isFieldRelative.get();
-  }
-
-  /**
-   * Returns the currently-estimated pose of the robot.
-   *
-   * @return The pose.
-   */
-  public Pose2d getPose() {
-    return poseEstimator.getEstimatedPosition();
-  }
-
-  /**
-   * Resets the odometry to the specified pose.
-   *
-   * @param pose The pose to which to set the odometry.
-   */
-  public void resetOdometry(Pose2d pose) {
-    poseEstimator.resetPosition(
-            new Rotation2d(),
-            new SwerveModulePosition[] {
-                    new SwerveModulePosition(),
-                    new SwerveModulePosition(),
-                    new SwerveModulePosition(),
-                    new SwerveModulePosition()
-            },
-            pose);
   }
 
   /**
@@ -255,7 +128,7 @@ public class SwerveSubsystem extends SubsystemBase {
    *
    * @param speeds Speed to drive.
    */
-  private void drive(ChassisSpeeds speeds) {
+  public void driveAutonomous(ChassisSpeeds speeds) {
     // For some reason, PathPlanner is giving me opposite directions, so use this temporary fix.
     final var swerveModuleStates = DriveConstants.DRIVE_KINEMATICS.toSwerveModuleStates(speeds.times(-1.0));
     setModuleStates(swerveModuleStates);
@@ -273,6 +146,15 @@ public class SwerveSubsystem extends SubsystemBase {
       case BACK_RIGHT ->  { return backRight; }
       default -> throw new RuntimeException("I don't even know what you put in here...");
     }
+  }
+
+  public SwerveModulePosition[] getEstimatedPositions() {
+    return new SwerveModulePosition[] {
+            frontLeft.getPosition(),
+            frontRight.getPosition(),
+            backLeft.getPosition(),
+            backRight.getPosition()
+    };
   }
 
   /**
@@ -299,11 +181,10 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   /**
-   *  Zeroes the heading of the robot.
+   *  Zeroes the gyro of the robot.
    */
-  public void zeroHeading() {
+  public void zeroGyro() {
     gyro.reset();
-    resetOdometry(new Pose2d(poseEstimator.getEstimatedPosition().getTranslation(), new Rotation2d()));
   }
 
   /**

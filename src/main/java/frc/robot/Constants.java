@@ -59,6 +59,9 @@ public final class Constants {
 
     public static final boolean GYRO_REVERSED = true;
 
+  }
+
+  public static final class VisionConstants {
     /**
      * Physical location of the camera on the robot, relative to the center of the robot.
      */
