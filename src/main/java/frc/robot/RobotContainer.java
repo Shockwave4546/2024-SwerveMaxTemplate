@@ -17,24 +17,24 @@ public class RobotContainer {
   protected final PhotonCamera camera = new PhotonCamera("OV9281");
   protected final SwerveSubsystem swerve;
   protected final CommandXboxController driverController = new CommandXboxController(IOConstants.DRIVER_CONTROLLER_PORT);
-  protected final AutoManager auto = new AutoManager();
+  protected final AutoManager auto;
 
   public RobotContainer() {
-    try {
-      final var layout = AprilTagFieldLayout.loadFromResource("/deploy/exampleAprilLayout.json");
+  
+      // final var layout = AprilTagFieldLayout.loadFromResource("/deploy/exampleAprilLayout.json");
       // Uses blue side as default in the event that the alliance color is null.
       final var alliance = DriverStation.getAlliance().isPresent() ? DriverStation.getAlliance().get() : DriverStation.Alliance.Blue;
-      layout.setOrigin(alliance == DriverStation.Alliance.Blue ? AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide : AprilTagFieldLayout.OriginPosition.kRedAllianceWallRightSide);
-      this.swerve = new SwerveSubsystem(camera, layout);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+      // layout.setOrigin(alliance == DriverStation.Alliance.Blue ? AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide : AprilTagFieldLayout.OriginPosition.kRedAllianceWallRightSide);
+      this.swerve = new SwerveSubsystem(camera);
+
 
     configureButtonBindings();
 
     if (DriverStation.getMatchType() != DriverStation.MatchType.None) {
       PPLibTelemetry.enableCompetitionMode();
     }
+
+    this.auto = new AutoManager();
   }
 
   private void configureButtonBindings() {

@@ -13,6 +13,7 @@ public class ResetGyroCommand extends Command {
 
   @Override public void initialize() {
     swerve.zeroHeading();
+  
   }
 
   @Override public boolean isFinished() {

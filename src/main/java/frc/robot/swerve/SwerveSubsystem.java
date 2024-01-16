@@ -94,13 +94,13 @@ public class SwerveSubsystem extends SubsystemBase {
   );
 
   private final PhotonCamera camera;
-  private final AprilTagFieldLayout layout;
+  // private final AprilTagFieldLayout layout;
   private double previousPipelineTimestamp = 0.0;
   private boolean isX = false;
 
-  public SwerveSubsystem(PhotonCamera camera, AprilTagFieldLayout layout) {
+  public SwerveSubsystem(PhotonCamera camera) {
     this.camera = camera;
-    this.layout = layout;
+    // this.layout = layout;
     MATCH.add("Gyro", gyro);
     // The "forward" direction will always be relative to the starting position of the Robot.
     zeroHeading();
@@ -140,13 +140,13 @@ public class SwerveSubsystem extends SubsystemBase {
       previousPipelineTimestamp = resultTimestamp;
       final var target = pipelineResult.getBestTarget();
       final var fiducialId = target.getFiducialId();
-      final var targetPose = layout.getTagPose(fiducialId);
-      if (target.getPoseAmbiguity() <= 0.2 && fiducialId >= 0 && targetPose.isPresent()) {
-        final var camToTarget = target.getBestCameraToTarget();
-        final var camPose = targetPose.get().transformBy(camToTarget.inverse());
-        final var visioMeasurement = camPose.transformBy(DriveConstants.CAMERA_TO_ROBOT);
-        poseEstimator.addVisionMeasurement(visioMeasurement.toPose2d(), resultTimestamp);
-      }
+      // final var targetPose = layout.getTagPose(fiducialId);
+      // if (target.getPoseAmbiguity() <= 0.2 && fiducialId >= 0 && targetPose.isPresent()) {
+      //   final var camToTarget = target.getBestCameraToTarget();
+      //   final var camPose = targetPose.get().transformBy(camToTarget.inverse());
+      //   final var visioMeasurement = camPose.transformBy(DriveConstants.CAMERA_TO_ROBOT);
+      //   poseEstimator.addVisionMeasurement(visioMeasurement.toPose2d(), resultTimestamp);
+      // }
     }
   }
 
@@ -303,6 +303,7 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public void zeroHeading() {
     gyro.reset();
+    resetOdometry(new Pose2d(poseEstimator.getEstimatedPosition().getTranslation(), new Rotation2d()));
   }
 
   /**

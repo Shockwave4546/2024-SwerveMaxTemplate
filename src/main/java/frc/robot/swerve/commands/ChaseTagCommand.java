@@ -14,10 +14,10 @@ import org.photonvision.PhotonCamera;
 
 public class ChaseTagCommand extends Command {
   private static final int TAG_TO_CHASE = 2;
-  private static final Transform3d TAG_TO_GOAL = new Transform3d(new Translation3d(1.5, 0.0, 0.0), new Rotation3d());
-  private final ProfiledPIDController xController = new ProfiledPIDController(0.04, 0.0, 0.0, new TrapezoidProfile.Constraints(3, 2));
-  private final ProfiledPIDController yController = new ProfiledPIDController(0.04, 0.0, 0.0,  new TrapezoidProfile.Constraints(3, 2));
-  private final ProfiledPIDController omegaController = new ProfiledPIDController(0.08, 0.0, 0.0,  new TrapezoidProfile.Constraints(8, 8));
+  private static final Transform3d TAG_TO_GOAL = new Transform3d(new Translation3d(2, 0.0, 0.0), new Rotation3d());
+  private final ProfiledPIDController xController = new ProfiledPIDController(0.1, 0.0, 0.0, new TrapezoidProfile.Constraints(3, 2));
+  private final ProfiledPIDController yController = new ProfiledPIDController(0.1, 0.0, 0.0,  new TrapezoidProfile.Constraints(3, 2));
+  private final ProfiledPIDController omegaController = new ProfiledPIDController(1.5, 0.0, 0.0,  new TrapezoidProfile.Constraints(8, 8));
   private final PhotonCamera camera;
   private final SwerveSubsystem swerve;
 
@@ -43,6 +43,7 @@ public class ChaseTagCommand extends Command {
   }
 
   @Override public void execute() {
+    System.out.println("Ahhhh");
     final var robotPose = new Pose3d(
             swerve.getPose().getX(),
             swerve.getPose().getY(),
@@ -54,11 +55,12 @@ public class ChaseTagCommand extends Command {
     if (!result.hasTargets()) return;
     final var target = result.getBestTarget();
     if (target.getFiducialId() != TAG_TO_CHASE) return;
-    if (target.getPoseAmbiguity() <= 0.2) return;
-    // Transform the robot's pose to find the camera's pose.
+    if (target.getPoseAmbiguity() > 0.2) return;
+    System.out.println("Good");
+    // Transform the robot's pose to find the camera's pose
     final var cameraPose = robotPose.transformBy(Constants.DriveConstants.ROBOT_TO_CAMERA);
      // Transform the camera's pose to the target's pose.
-    final var camToTarget = target.getBestCameraToTarget();
+    final var camToTarget = target.getBestCameraToTarget().plus(new Transform3d(new Translation3d(), new Rotation3d(0.0, 0.0, Math.PI)));
     final var targetPose = cameraPose.transformBy(camToTarget);
     // Transform the tag's pose to set our goal.
     final var goalPose = targetPose.transformBy(TAG_TO_GOAL).toPose2d();
@@ -67,10 +69,17 @@ public class ChaseTagCommand extends Command {
     yController.setGoal(goalPose.getY());
     omegaController.setGoal(goalPose.getRotation().getRadians());
 
+    final var xSpeed = xController.atGoal() ? 0 : -xController.calculate(swerve.getPose().getX());
+    final var ySpeed = yController.atGoal() ? 0 : -yController.calculate(swerve.getPose().getY());
+    final var rotSpeed = omegaController.atGoal() ? 0 : -omegaController.calculate(swerve.getPose().getRotation().getRadians());
+
+    System.out.println("Robot pose degrees: " + robotPose.getRotation().toRotation2d().getDegrees());
+    System.out.println("Goal pose degrees: " + goalPose.getRotation().getDegrees());
+
     swerve.drive(
-            xController.calculate(swerve.getPose().getX()),
-            yController.calculate(swerve.getPose().getY()),
-            omegaController.calculate(swerve.getPose().getRotation().getRadians()),
+            xSpeed,
+            ySpeed,
+            rotSpeed,
             true
     );
   }
