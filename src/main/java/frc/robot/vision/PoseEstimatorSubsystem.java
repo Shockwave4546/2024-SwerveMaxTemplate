@@ -1,5 +1,7 @@
 package frc.robot.vision;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -10,10 +12,15 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import frc.robot.Constants;
+import frc.robot.Constants.VisionConstants;
 import frc.robot.swerve.SwerveSubsystem;
+
+import java.io.IOException;
 
 import static frc.robot.Constants.DriveConstants;
 
@@ -48,16 +55,21 @@ public class PoseEstimatorSubsystem implements Subsystem {
 
   private final SwerveSubsystem swerve;
   private final VisionSubsystem vision;
+//  private final AprilTagFieldLayout layout;
   private double previousPipelineTimestamp = 0.0;
 
   public PoseEstimatorSubsystem(SwerveSubsystem swerve, VisionSubsystem vision) {
     this.swerve = swerve;
     this.vision = vision;
 
-//     final var layout = AprilTagFieldLayout.loadFromResource("/deploy/exampleAprilLayout.json");
-//     Uses blue side as default in the event that the alliance color is null.
-//     final var alliance = DriverStation.getAlliance().isPresent() ? DriverStation.getAlliance().get() : DriverStation.Alliance.Blue;
-//     layout.setOrigin(alliance == DriverStation.Alliance.Blue ? AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide : AprilTagFieldLayout.OriginPosition.kRedAllianceWallRightSide);
+//    try {
+//      this.layout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2024Crescendo.m_resourceFile);
+//      // Uses blue side as default in the event that the alliance color is null.
+//      final var alliance = DriverStation.getAlliance().isPresent() ? DriverStation.getAlliance().get() : DriverStation.Alliance.Blue;
+//      layout.setOrigin(alliance == DriverStation.Alliance.Blue ? AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide : AprilTagFieldLayout.OriginPosition.kRedAllianceWallRightSide);
+//    } catch (IOException e) {
+//      throw new RuntimeException(e);
+//    }
   }
 
 

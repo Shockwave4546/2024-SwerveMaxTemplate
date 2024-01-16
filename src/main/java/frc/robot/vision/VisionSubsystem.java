@@ -51,7 +51,7 @@ public class VisionSubsystem implements Subsystem {
   }
 
   /**
-   * Call #hasViableTarget() before calling this method.
+   * Note: please call #hasViableTarget() before calling this method.
    *
    * @return the best target found by the camera.
    *         throws RuntimeException if no targets are found.
@@ -63,6 +63,7 @@ public class VisionSubsystem implements Subsystem {
   }
 
   /**
+   * Note: please call #hasViableTarget() before calling this method.
    * @return the physical location of the tag, relative to the center of the robot.
    */
   public Pose3d getTagRelativeToCenterPose() {
@@ -82,6 +83,7 @@ public class VisionSubsystem implements Subsystem {
   }
 
   /**
+   * Note: please call #hasViableTarget() before calling this method.
    * Would later use by doing CameraPose.transformBy(#getCameraToTagTransform())
    *
    * @return the [Transform3d] to transform the Camera pose to the Tag pose.
