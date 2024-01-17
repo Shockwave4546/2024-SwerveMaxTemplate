@@ -29,7 +29,6 @@ public class MAXSwerveModule {
    * encoder, and SparkMaxPIDController. This configuration is specific to the REV
    * MAXSwerve Module built with NEOs, SPARKS MAX, and a ThroughBore Encoder.
    */
-  @SuppressWarnings("resource")
   public MAXSwerveModule(int drivingCANId, int turningCANId, double chassisAngularOffset, boolean invertDrivingDirection, ShuffleboardTab tab) {
     final var drivingSparkMax = new CANSparkMax(drivingCANId, MotorType.kBrushless);
     final var turningSparkMax = new CANSparkMax(turningCANId, MotorType.kBrushless);

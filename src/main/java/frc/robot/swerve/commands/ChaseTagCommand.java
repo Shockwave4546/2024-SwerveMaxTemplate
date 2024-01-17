@@ -11,12 +11,14 @@ import frc.robot.swerve.SwerveSubsystem;
 import frc.robot.vision.PoseEstimatorSubsystem;
 import frc.robot.vision.VisionSubsystem;
 
+import static frc.robot.Constants.*;
+
 public class ChaseTagCommand extends Command {
   private static final int TAG_TO_CHASE = 2;
   private static final Transform3d TAG_TO_GOAL = new Transform3d(new Translation3d(2, 0.0, 0.0), new Rotation3d());
-  private final ProfiledPIDController xController = new ProfiledPIDController(0.1, 0.0, 0.0, new TrapezoidProfile.Constraints(3, 2));
-  private final ProfiledPIDController yController = new ProfiledPIDController(0.1, 0.0, 0.0,  new TrapezoidProfile.Constraints(3, 2));
-  private final ProfiledPIDController omegaController = new ProfiledPIDController(1.5, 0.0, 0.0,  new TrapezoidProfile.Constraints(8, 8));
+  private final ProfiledPIDController xController = new ProfiledPIDController(0.1, 0.0, 0.0, new TrapezoidProfile.Constraints(DriveConstants.MAX_SPEED_METERS_PER_SECOND, 2));
+  private final ProfiledPIDController yController = new ProfiledPIDController(0.1, 0.0, 0.0,  new TrapezoidProfile.Constraints(DriveConstants.MAX_SPEED_METERS_PER_SECOND, 2));
+  private final ProfiledPIDController omegaController = new ProfiledPIDController(1.5, 0.0, 0.0,  new TrapezoidProfile.Constraints(DriveConstants.MAX_ANGULAR_SPEED, 4));
   private final VisionSubsystem vision;
   private final PoseEstimatorSubsystem poseEstimator;
   private final SwerveSubsystem swerve;
@@ -55,15 +57,8 @@ public class ChaseTagCommand extends Command {
     final var xSpeed = (xController.atGoal() || !vision.hasViableTarget()) ? 0 : -xController.calculate(poseEstimator.getPose2d().getX());
     final var ySpeed = (yController.atGoal() || !vision.hasViableTarget()) ? 0 : -yController.calculate(poseEstimator.getPose2d().getY());
     final var rotSpeed = (omegaController.atGoal() || !vision.hasViableTarget()) ? 0 : -omegaController.calculate(poseEstimator.getPose2d().getRotation().getRadians());
-    
-    System.out.println("Goal pose degrees: " + goalPose.getRotation().getDegrees());
 
-    swerve.drive(
-            xSpeed,
-            ySpeed,
-            rotSpeed,
-            true
-    );
+    swerve.drive(xSpeed, ySpeed, rotSpeed, true);
   }
 
   @Override public void end(boolean interrupted) {
