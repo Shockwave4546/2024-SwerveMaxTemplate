@@ -29,8 +29,9 @@ public class RobotContainer {
   }
 
   private void configureButtonBindings() {
+    driverController.b().whileTrue(new ChaseTagCommand(vision, poseEstimator, swerve));
+
     driverController.a().onTrue(new ResetPoseCommand(poseEstimator));
-    driverController.b().onTrue(new SetXCommand(swerve));
-    driverController.x().whileTrue(new ChaseTagCommand(vision, poseEstimator, swerve));
+    driverController.x().onTrue(new SetXCommand(swerve));
   }
 }
