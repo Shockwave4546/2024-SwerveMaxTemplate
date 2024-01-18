@@ -6,25 +6,19 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
-public class VisionSubsystem implements Subsystem {
+public class VisionSubsystem extends SubsystemBase {
   private final ShuffleboardTab tab = Shuffleboard.getTab("Vision");
   private final PhotonCamera camera = new PhotonCamera("OV9281");
   private PoseEstimatorSubsystem poseEstimator;
 
-  @Override public void periodic() {
+  public VisionSubsystem() {
     tab.addNumber("Latest Pipeline Timestamp", this::getLatestPipelineTimestamp);
     tab.addBoolean("Has Viable Target", this::hasViableTarget);
-
-    if (!hasViableTarget()) return;
-    tab.addNumber("Tag Pose Ambiguity", () -> getTag().getPoseAmbiguity());
-    tab.addNumber("Tag Pose X", () -> getTagRelativeToCenterPose().getX());
-    tab.addNumber("Tag Pose Y", () -> getTagRelativeToCenterPose().getY());
-    tab.addNumber("Tag Pose Degrees", () -> getTagRelativeToCenterPose().getRotation().getZ());
   }
 
   /**
@@ -93,7 +87,7 @@ public class VisionSubsystem implements Subsystem {
     final var pipeline = camera.getLatestResult();
     if (!pipeline.hasTargets()) throw new RuntimeException("Call this method only when targets are found.");
     final var tag = pipeline.getBestTarget();
-    return normalizeAngle(tag.getBestCameraToTarget());
+    return tag.getBestCameraToTarget().plus(new Transform3d(new Translation3d(), new Rotation3d(0.0, 0.0, Math.PI)));
   }
 
   /**

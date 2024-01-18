@@ -98,15 +98,15 @@ public class SwerveSubsystem extends SubsystemBase {
    * @param fieldRelative Whether the provided x and y speeds are relative to the
    *                      field.
    */
-  public void drive(double xSpeed, double ySpeed, double rotSpeed, boolean fieldRelative) {
+  public void drive(double xSpeed, double ySpeed, double rotSpeed, boolean fieldRelative, boolean useDefaultSpeeds) {
     if (isX) {
       setX();
       return;
     }
     // Convert the commanded speeds into the correct units for the drivetrain
-    final double xSpeedDelivered = xSpeed * DriveConstants.MAX_SPEED_METERS_PER_SECOND * driveSpeedMultiplier.get();
-    final double ySpeedDelivered = ySpeed * DriveConstants.MAX_SPEED_METERS_PER_SECOND * driveSpeedMultiplier.get();
-    final double rotDelivered = rotSpeed * DriveConstants.MAX_ANGULAR_SPEED * rotSpeedMultiplier.get();
+    final double xSpeedDelivered = xSpeed * DriveConstants.MAX_SPEED_METERS_PER_SECOND * (useDefaultSpeeds ? 0.8 : driveSpeedMultiplier.get());
+    final double ySpeedDelivered = ySpeed * DriveConstants.MAX_SPEED_METERS_PER_SECOND * (useDefaultSpeeds ? 0.8 : driveSpeedMultiplier.get());
+    final double rotDelivered = rotSpeed * DriveConstants.MAX_ANGULAR_SPEED * (useDefaultSpeeds ? 1.0 : rotSpeedMultiplier.get());
 
     final var swerveModuleStates = DriveConstants.DRIVE_KINEMATICS.toSwerveModuleStates(
             fieldRelative
@@ -119,7 +119,7 @@ public class SwerveSubsystem extends SubsystemBase {
    * Stops the robot.
    */
   public void stop() {
-    drive(0.0, 0.0, 0.0, false);
+    drive(0.0, 0.0, 0.0, false, false);
   }
 
   /**

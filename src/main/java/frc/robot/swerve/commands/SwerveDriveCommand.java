@@ -21,7 +21,8 @@ public class SwerveDriveCommand extends Command {
             MathUtil.applyDeadband(controller.getLeftY(), IOConstants.DRIVE_DEADBAND),
             MathUtil.applyDeadband(controller.getLeftX(), IOConstants.DRIVE_DEADBAND),
             -MathUtil.applyDeadband(controller.getRightX(), IOConstants.DRIVE_DEADBAND),
-            swerve.isFieldRelative()
+            swerve.isFieldRelative(),
+            false
     );
   }
 }

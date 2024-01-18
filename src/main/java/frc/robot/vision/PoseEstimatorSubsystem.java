@@ -15,7 +15,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.swerve.SwerveSubsystem;
@@ -24,7 +24,7 @@ import java.io.IOException;
 
 import static frc.robot.Constants.DriveConstants;
 
-public class PoseEstimatorSubsystem implements Subsystem {
+public class PoseEstimatorSubsystem extends SubsystemBase {
   private final ShuffleboardTab tab = Shuffleboard.getTab("Pose Estimator");
     /**
    * Standard deviations of model states. Increase these numbers to trust your model's state estimates less. This
@@ -70,6 +70,10 @@ public class PoseEstimatorSubsystem implements Subsystem {
 //    } catch (IOException e) {
 //      throw new RuntimeException(e);
 //    }
+
+    tab.addNumber("Pose X", () -> getPose2d().getX());
+    tab.addNumber("Pose Y", () -> getPose2d().getY());
+    tab.addNumber("Pose Degrees", () -> getPose2d().getRotation().getDegrees());
   }
 
 
@@ -90,10 +94,6 @@ public class PoseEstimatorSubsystem implements Subsystem {
 //        poseEstimator.addVisionMeasurement(visionMeasurement.toPose2d(), resultTimestamp);
 //      }
     }
-
-    tab.addNumber("Pose X", () -> getPose2d().getX());
-    tab.addNumber("Pose Y", () -> getPose2d().getY());
-    tab.addNumber("Pose Degrees", () -> getPose2d().getRotation().getDegrees());
   }
 
   /**
