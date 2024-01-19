@@ -16,8 +16,7 @@ public class VisionSubsystem extends SubsystemBase {
 
   public VisionSubsystem() {
     final var tab = Shuffleboard.getTab("Odometry");
-    tab.addNumber("Latest Pipeline Timestamp", this::getLatestPipelineTimestamp).withSize(2, 1).withPosition(0, 0);
-    tab.addBoolean("Has Viable Target", this::hasViableTarget).withSize(2, 2).withPosition(0, 1);
+    tab.addBoolean("Has Viable Target", this::hasViableTarget).withSize(3, 2).withPosition(0, 0);
   }
 
   /**

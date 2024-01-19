@@ -57,14 +57,14 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
           VISION_MEASUREMENT_STD_DEVS
   );
 
-  private final ShuffleboardBoolean useVisionMeasurement = new ShuffleboardBoolean(tab,"Use Vision Measurement", false).withSize(2, 2).withPosition(2, 1);
+  private final ShuffleboardBoolean useVisionMeasurement = new ShuffleboardBoolean(tab,"Use Vision Measurement", false).withSize(3, 2).withPosition(3, 0);
   private final PhotonPoseEstimator cameraPoseEstimator;
   private final SwerveSubsystem swerve;
   private final VisionSubsystem vision;
 
-  private final ShuffleboardDouble tagX = new ShuffleboardDouble(tab, "Tag X (m)", 0.0).withSize(3, 1).withPosition(0, 4);
-  private final ShuffleboardDouble tagY = new ShuffleboardDouble(tab, "Tag Y (m)", 0.0).withSize(3, 1).withPosition(3, 4);
-  private final ShuffleboardDouble tagDegrees = new ShuffleboardDouble(tab, "Tag Degrees", 0.0).withSize(3, 1).withPosition(6, 4);
+  private final ShuffleboardDouble tagX = new ShuffleboardDouble(tab, "Tag X (m)", 0.0).withSize(3, 2).withPosition(0, 4);
+  private final ShuffleboardDouble tagY = new ShuffleboardDouble(tab, "Tag Y (m)", 0.0).withSize(3, 2).withPosition(3, 4);
+  private final ShuffleboardDouble tagDegrees = new ShuffleboardDouble(tab, "Tag Degrees", 0.0).withSize(3, 2).withPosition(6, 4);
 
   private double previousPipelineTimestamp = 0.0;
 
@@ -90,9 +90,9 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
       throw new RuntimeException(e);
     }
 
-    tab.addNumber("Estimated Pose X (m)", () -> getPose2d().getX()).withSize(3, 1).withPosition(0, 3);
-    tab.addNumber("Estimated Pose Y (m)", () -> getPose2d().getY()).withSize(3, 1).withPosition(3, 3);
-    tab.addNumber("Estimated Pose Degrees", () -> getPose2d().getRotation().getDegrees()).withSize(3, 1).withPosition(6, 3);
+    tab.addNumber("Estimated Pose X (m)", () -> getPose2d().getX()).withSize(3, 2).withPosition(0, 2);
+    tab.addNumber("Estimated Pose Y (m)", () -> getPose2d().getY()).withSize(3, 2).withPosition(3, 2);
+    tab.addNumber("Estimated Pose Degrees", () -> getPose2d().getRotation().getDegrees()).withSize(3, 2).withPosition(6, 2);
   }
 
 

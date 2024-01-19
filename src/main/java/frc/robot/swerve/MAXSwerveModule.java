@@ -8,6 +8,7 @@ import com.revrobotics.SparkPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import frc.robot.Constants.ModuleConstants;
 import frc.robot.shuffleboard.TunableSparkPIDController;
@@ -15,6 +16,8 @@ import frc.robot.shuffleboard.TunableSparkPIDController;
 import static com.revrobotics.CANSparkLowLevel.MotorType;
 
 public class MAXSwerveModule {
+  private static final ShuffleboardTab TAB = Shuffleboard.getTab("Swerve");
+  private static int COUNT = 0;
   private final RelativeEncoder drivingEncoder;
   private final AbsoluteEncoder turningEncoder;
 
@@ -29,7 +32,7 @@ public class MAXSwerveModule {
    * encoder, and SparkMaxPIDController. This configuration is specific to the REV
    * MAXSwerve Module built with NEOs, SPARKS MAX, and a ThroughBore Encoder.
    */
-  public MAXSwerveModule(int drivingCANId, int turningCANId, double chassisAngularOffset, boolean invertDrivingDirection, ShuffleboardTab tab) {
+  public MAXSwerveModule(int drivingCANId, int turningCANId, double chassisAngularOffset, boolean invertDrivingDirection, String prefix) {
     final var drivingSparkMax = new CANSparkMax(drivingCANId, MotorType.kBrushless);
     final var turningSparkMax = new CANSparkMax(turningCANId, MotorType.kBrushless);
 
@@ -102,18 +105,20 @@ public class MAXSwerveModule {
     desiredState.angle = new Rotation2d(turningEncoder.getPosition());
     drivingEncoder.setPosition(0);
 
+    final var colIndex = COUNT * 7;
     // For debugging purposes.
-    tab.add("(Driving) ID", drivingCANId).withSize(4, 1).withPosition(0, 0);
-    tab.addNumber("(Driving Applied Duty Cycle", drivingSparkMax::getAppliedOutput).withSize(4, 1).withPosition(0, 1);
-    tab.addNumber("(Driving) Applied Amperage", drivingSparkMax::getOutputCurrent).withSize(4, 1).withPosition(0, 2);
-    tab.addNumber("(Driving) Temperature (C)", drivingSparkMax::getMotorTemperature).withSize(4, 1).withPosition(0, 3);
-    tab.add("(Driving) PID Controller", new TunableSparkPIDController(drivingPIDController)).withSize(2, 3).withPosition(4, 0);
+    TAB.add(prefix + " D ID", drivingCANId).withSize(4, 1).withPosition(colIndex, 0);
+    TAB.addNumber(prefix + "D Duty Cycle", drivingSparkMax::getAppliedOutput).withSize(4, 1).withPosition(colIndex, 1);
+    TAB.addNumber(prefix + "D Amperage", drivingSparkMax::getOutputCurrent).withSize(4, 1).withPosition(colIndex, 2);
+    TAB.addNumber(prefix + "D Temperature (C)", drivingSparkMax::getMotorTemperature).withSize(4, 1).withPosition(colIndex, 3);
+    TAB.add(prefix + "D PID", new TunableSparkPIDController(drivingPIDController)).withSize(2, 3).withPosition(colIndex + 4, 0);
 
-    tab.add("(Turning) ID", turningCANId).withSize(4, 1).withPosition(0, 4);
-    tab.addNumber("(Turning) Applied Duty Cycle", turningSparkMax::getAppliedOutput).withSize(4, 1).withPosition(0, 5);
-    tab.addNumber("(Turning) Applied Amperage", turningSparkMax::getOutputCurrent).withSize(4, 1).withPosition(0, 6);
-    tab.addNumber("(Turning) Temperature (C)", turningSparkMax::getMotorTemperature).withSize(4, 1).withPosition(0, 7);
-    tab.add("(Turning) Turning PID Controller", new TunableSparkPIDController(turningPIDController)).withSize(2, 3).withPosition(4, 4);
+    TAB.add(prefix + "T ID", turningCANId).withSize(4, 1).withPosition(0, 4);
+    TAB.addNumber(prefix + "T Duty Cycle", turningSparkMax::getAppliedOutput).withSize(4, 1).withPosition(colIndex, 5);
+    TAB.addNumber(prefix + "T Amperage", turningSparkMax::getOutputCurrent).withSize(4, 1).withPosition(colIndex, 6);
+    TAB.addNumber(prefix + "T Temperature (C)", turningSparkMax::getMotorTemperature).withSize(4, 1).withPosition(colIndex, 7);
+    TAB.add(prefix + "T PID", new TunableSparkPIDController(turningPIDController)).withSize(2, 3).withPosition(colIndex + 4, 4);
+    COUNT++;
   }
 
   /**

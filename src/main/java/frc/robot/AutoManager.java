@@ -39,7 +39,7 @@ public class AutoManager {
     );
 
     this.chooser = AutoBuilder.buildAutoChooser("Do nothing.");
-    Tabs.MATCH.add("Autonomous", chooser).withSize(3, 2).withPosition(2, 0);
+    Tabs.MATCH.add("Autonomous", chooser).withSize(3, 2).withPosition(3, 0);
   }
 
   /**

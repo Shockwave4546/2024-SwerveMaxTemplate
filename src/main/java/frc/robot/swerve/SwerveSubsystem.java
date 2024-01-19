@@ -20,7 +20,7 @@ public class SwerveSubsystem extends SubsystemBase {
           DriveConstants.FRONT_LEFT_TURNING_CAN_ID,
           DriveConstants.FRONT_LEFT_CHASSIS_ANGULAR_OFFSET,
           false,
-          Shuffleboard.getTab("Front Left Motors")
+          "FL"
   );
 
   private final MAXSwerveModule frontRight = new MAXSwerveModule(
@@ -28,7 +28,7 @@ public class SwerveSubsystem extends SubsystemBase {
           DriveConstants.FRONT_RIGHT_TURNING_CAN_ID,
           DriveConstants.FRONT_RIGHT_CHASSIS_ANGULAR_OFFSET,
           false,
-          Shuffleboard.getTab("Front Right Motors")
+          "FR"
   );
 
   private final MAXSwerveModule backLeft = new MAXSwerveModule(
@@ -36,7 +36,7 @@ public class SwerveSubsystem extends SubsystemBase {
           DriveConstants.BACK_LEFT_TURNING_CAN_ID,
           DriveConstants.BACK_LEFT_CHASSIS_ANGULAR_OFFSET,
           false,
-          Shuffleboard.getTab("Back Left Motors")
+          "BL"
   );
 
   private final MAXSwerveModule backRight = new MAXSwerveModule(
@@ -44,20 +44,20 @@ public class SwerveSubsystem extends SubsystemBase {
           DriveConstants.BACK_RIGHT_TURNING_CAN_ID,
           DriveConstants.BACK_RIGHT_CHASSIS_ANGULAR_OFFSET,
           false,
-          Shuffleboard.getTab("Back Right Motors")
+          "BR"
   );
 
   private final AHRS gyro = new AHRS();
   private final ShuffleboardSpeed driveSpeedMultiplier = new ShuffleboardSpeed(MATCH, "Drive Speed Multiplier", DriveConstants.DEFAULT_DRIVE_SPEED_MULTIPLIER)
-          .withSize(5, 1).withPosition(0, 2);
+          .withSize(5, 2).withPosition(0, 4);
   private final ShuffleboardSpeed rotSpeedMultiplier = new ShuffleboardSpeed(MATCH, "Rot Speed Multiplier", DriveConstants.DEFAULT_ROT_SPEED_MULTIPLIER)
-          .withSize(5, 1).withPosition(0, 3);
+          .withSize(5, 2).withPosition(5, 4);
   private final ShuffleboardBoolean isFieldRelative = new ShuffleboardBoolean(MATCH, "Is Field Relative?", true)
-          .withSize(2, 2).withPosition(5, 0);
+          .withSize(3, 2).withPosition(6, 0);
   private boolean isX = false;
 
   public SwerveSubsystem() {
-    MATCH.add("Gyro", gyro).withSize(2, 2).withPosition(0, 0);
+    MATCH.add("Gyro", gyro).withSize(3, 3).withPosition(0, 0);
     resetEncoders();
   }
 
