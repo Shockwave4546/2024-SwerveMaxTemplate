@@ -48,13 +48,16 @@ public class SwerveSubsystem extends SubsystemBase {
   );
 
   private final AHRS gyro = new AHRS();
-  private final ShuffleboardSpeed driveSpeedMultiplier = new ShuffleboardSpeed(MATCH, "Drive Speed Multiplier", DriveConstants.DEFAULT_DRIVE_SPEED_MULTIPLIER);
-  private final ShuffleboardSpeed rotSpeedMultiplier = new ShuffleboardSpeed(MATCH, "Rot Speed Multiplier", DriveConstants.DEFAULT_ROT_SPEED_MULTIPLIER);
-  private final ShuffleboardBoolean isFieldRelative = new ShuffleboardBoolean(MATCH, "Is Field Relative?", true);
+  private final ShuffleboardSpeed driveSpeedMultiplier = new ShuffleboardSpeed(MATCH, "Drive Speed Multiplier", DriveConstants.DEFAULT_DRIVE_SPEED_MULTIPLIER)
+          .withSize(5, 1).withPosition(0, 2);
+  private final ShuffleboardSpeed rotSpeedMultiplier = new ShuffleboardSpeed(MATCH, "Rot Speed Multiplier", DriveConstants.DEFAULT_ROT_SPEED_MULTIPLIER)
+          .withSize(5, 1).withPosition(0, 3);
+  private final ShuffleboardBoolean isFieldRelative = new ShuffleboardBoolean(MATCH, "Is Field Relative?", true)
+          .withSize(2, 2).withPosition(5, 0);
   private boolean isX = false;
 
   public SwerveSubsystem() {
-    MATCH.add("Gyro", gyro);
+    MATCH.add("Gyro", gyro).withSize(2, 2).withPosition(0, 0);
     resetEncoders();
   }
 

@@ -68,7 +68,6 @@ public class ShuffleboardDouble implements ShuffleboardValue {
    * @param max the maximum value for the widget
    * @return the modified ShuffleboardDouble object
    */
-  @SuppressWarnings("UnusedReturnValue")
   public ShuffleboardDouble withMinMax(double min, double max) {
     widget.withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", String.valueOf(min), "max", String.valueOf(max)));
     return this;

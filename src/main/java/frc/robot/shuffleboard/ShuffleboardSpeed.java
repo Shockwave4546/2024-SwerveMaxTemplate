@@ -29,4 +29,28 @@ public class ShuffleboardSpeed extends ShuffleboardDouble {
   public ShuffleboardSpeed(ShuffleboardTab tab, String name) {
     this(tab, name, DEFAULT_VALUE);
   }
+
+  /**
+   * Sets the size of the widget.
+   *
+   * @param length the length of the widget
+   * @param height the height of the widget
+   * @return the modified ShuffleboardDouble object
+   */
+  public ShuffleboardSpeed withSize(int length, int height) {
+    super.withSize(length, height);
+    return this;
+  }
+
+  /**
+   * Sets the position of the widget.
+   *
+   * @param x the x coordinate of the widget's position
+   * @param y the y coordinate of the widget's position
+   * @return the modified ShuffleboardDouble object
+   */
+  public ShuffleboardSpeed withPosition(int x, int y) {
+    super.withPosition(x, y);
+    return this;
+  }
 }
