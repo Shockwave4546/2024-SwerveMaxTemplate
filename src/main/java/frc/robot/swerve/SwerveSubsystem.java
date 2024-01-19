@@ -48,8 +48,8 @@ public class SwerveSubsystem extends SubsystemBase {
   );
 
   private final AHRS gyro = new AHRS();
-  private final ShuffleboardSpeed driveSpeedMultiplier = new ShuffleboardSpeed(MATCH, "Drive Speed Multiplier", 0.8);
-  private final ShuffleboardSpeed rotSpeedMultiplier = new ShuffleboardSpeed(MATCH, "Rot Speed Multiplier", 1.0);
+  private final ShuffleboardSpeed driveSpeedMultiplier = new ShuffleboardSpeed(MATCH, "Drive Speed Multiplier", DriveConstants.DEFAULT_DRIVE_SPEED_MULTIPLIER);
+  private final ShuffleboardSpeed rotSpeedMultiplier = new ShuffleboardSpeed(MATCH, "Rot Speed Multiplier", DriveConstants.DEFAULT_ROT_SPEED_MULTIPLIER);
   private final ShuffleboardBoolean isFieldRelative = new ShuffleboardBoolean(MATCH, "Is Field Relative?", true);
   private boolean isX = false;
 
@@ -104,9 +104,9 @@ public class SwerveSubsystem extends SubsystemBase {
       return;
     }
     // Convert the commanded speeds into the correct units for the drivetrain
-    final double xSpeedDelivered = xSpeed * DriveConstants.MAX_SPEED_METERS_PER_SECOND * (useDefaultSpeeds ? 0.8 : driveSpeedMultiplier.get());
-    final double ySpeedDelivered = ySpeed * DriveConstants.MAX_SPEED_METERS_PER_SECOND * (useDefaultSpeeds ? 0.8 : driveSpeedMultiplier.get());
-    final double rotDelivered = rotSpeed * DriveConstants.MAX_ANGULAR_SPEED * (useDefaultSpeeds ? 1.0 : rotSpeedMultiplier.get());
+    final double xSpeedDelivered = xSpeed * DriveConstants.MAX_SPEED_METERS_PER_SECOND * (useDefaultSpeeds ? DriveConstants.DEFAULT_DRIVE_SPEED_MULTIPLIER : driveSpeedMultiplier.get());
+    final double ySpeedDelivered = ySpeed * DriveConstants.MAX_SPEED_METERS_PER_SECOND * (useDefaultSpeeds ? DriveConstants.DEFAULT_DRIVE_SPEED_MULTIPLIER : driveSpeedMultiplier.get());
+    final double rotDelivered = rotSpeed * DriveConstants.MAX_ANGULAR_SPEED * (useDefaultSpeeds ? DriveConstants.DEFAULT_ROT_SPEED_MULTIPLIER : rotSpeedMultiplier.get());
 
     final var swerveModuleStates = DriveConstants.DRIVE_KINEMATICS.toSwerveModuleStates(
             fieldRelative

@@ -54,8 +54,6 @@ public class ChaseTagCommand extends Command {
     final var tagPose = vision.getTagRelativeToCenterPose();
     final var goalPose = tagPose.transformBy(TAG_TO_GOAL).toPose2d();
     final var robotPose = poseEstimator.getPose2d();
-    System.out.println("Goal: " + goalPose.getX() + " " + goalPose.getY() + " " + goalPose.getRotation().getDegrees());
-    System.out.println("Current: " + robotPose.getX() + " " + robotPose.getY() + " " + robotPose.getRotation().getDegrees()); 
 
     xController.setGoal(goalPose.getX());
     yController.setGoal(goalPose.getY());

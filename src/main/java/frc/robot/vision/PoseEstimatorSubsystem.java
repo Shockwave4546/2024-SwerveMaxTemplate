@@ -1,6 +1,7 @@
 package frc.robot.vision;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
@@ -13,19 +14,25 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.VisionConstants;
+import frc.robot.shuffleboard.ShuffleboardBoolean;
+import frc.robot.shuffleboard.ShuffleboardDouble;
 import frc.robot.swerve.SwerveSubsystem;
+import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.estimation.TargetModel;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 
 import static frc.robot.Constants.DriveConstants;
 
 public class PoseEstimatorSubsystem extends SubsystemBase {
-  private final ShuffleboardTab tab = Shuffleboard.getTab("Pose Estimator");
+  private final ShuffleboardTab tab = Shuffleboard.getTab("Odometry");
     /**
    * Standard deviations of model states. Increase these numbers to trust your model's state estimates less. This
    * matrix is in the form [x, y, theta]ᵀ, with units in meters and radians, then meters.
@@ -53,46 +60,61 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
           VISION_MEASUREMENT_STD_DEVS
   );
 
+  private final ShuffleboardBoolean useVisionMeasurement = new ShuffleboardBoolean(tab,"Use Vision Measurement", false).withSize(2, 2).withPosition(2, 1);
+  private final PhotonPoseEstimator cameraPoseEstimator;
   private final SwerveSubsystem swerve;
   private final VisionSubsystem vision;
-//  private final AprilTagFieldLayout layout;
+
+  private final ShuffleboardDouble tagX = new ShuffleboardDouble(tab, "Tag X (m)", 0.0);
+  private final ShuffleboardDouble tagY = new ShuffleboardDouble(tab, "Tag Y (m)", 0.0);
+  private final ShuffleboardDouble tagDegrees = new ShuffleboardDouble(tab, "Tag Degrees", 0.0);
+
   private double previousPipelineTimestamp = 0.0;
 
   public PoseEstimatorSubsystem(SwerveSubsystem swerve, VisionSubsystem vision) {
     this.swerve = swerve;
     this.vision = vision;
 
-//    try {
-//      this.layout = AprilTagFieldLayout.loadFromResource(AprilTagFields.k2024Crescendo.m_resourceFile);
-//      // Uses blue side as default in the event that the alliance color is null.
-//      final var alliance = DriverStation.getAlliance().isPresent() ? DriverStation.getAlliance().get() : DriverStation.Alliance.Blue;
-//      layout.setOrigin(alliance == DriverStation.Alliance.Blue ? AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide : AprilTagFieldLayout.OriginPosition.kRedAllianceWallRightSide);
-//    } catch (IOException e) {
-//      throw new RuntimeException(e);
-//    }
+    try {
+      final var layout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
+      // Uses blue side as default in the event that the alliance color is null.
+      final var alliance = DriverStation.getAlliance().isPresent() ? DriverStation.getAlliance().get() : Alliance.Blue;
+      layout.setOrigin(alliance == Alliance.Blue ? OriginPosition.kBlueAllianceWallRightSide : OriginPosition.kRedAllianceWallRightSide);
 
-    tab.addNumber("Pose X", () -> getPose2d().getX());
-    tab.addNumber("Pose Y", () -> getPose2d().getY());
-    tab.addNumber("Pose Degrees", () -> getPose2d().getRotation().getDegrees());
+      this.cameraPoseEstimator = new PhotonPoseEstimator(
+              layout,
+              PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_RIO,
+              vision.getPhotonCamera(),
+              VisionConstants.ROBOT_TO_CAMERA
+      );
+
+      this.cameraPoseEstimator.setTagModel(TargetModel.kAprilTag36h11);
+    } catch (UncheckedIOException e) {
+      throw new RuntimeException(e);
+    }
+
+    tab.addNumber("Estimated Pose X (m)", () -> getPose2d().getX());
+    tab.addNumber("Estimated Pose Y (m)", () -> getPose2d().getY());
+    tab.addNumber("Estimated Pose Degrees", () -> getPose2d().getRotation().getDegrees());
   }
 
 
   @Override public void periodic() {
     poseEstimator.update(swerve.getHeadingRotation2d(), swerve.getEstimatedPositions());
 
-    final var resultTimestamp = vision.getLatestPipelineTimestamp();
-    if (resultTimestamp != previousPipelineTimestamp && vision.hasViableTarget()) {
-      previousPipelineTimestamp = resultTimestamp;
-      final var tag = vision.getTag();
-      final var id = tag.getFiducialId();
-      // TODO: 1/16/2024 Need to test this.
-//      final var targetPose = layout.getTagPose(id);
-//      if (id >= 0 && targetPose.isPresent()) {
-//        final var camToTag = vision.getCameraToTagTransform();
-//        final var camPose = targetPose.get().transformBy(camToTag.inverse());
-//        final var visionMeasurement = camPose.transformBy(VisionConstants.CAMERA_TO_ROBOT);
-//        poseEstimator.addVisionMeasurement(visionMeasurement.toPose2d(), resultTimestamp);
-//      }
+    final var currentTimestamp = vision.getLatestPipelineTimestamp();
+    if (currentTimestamp != previousPipelineTimestamp && vision.hasViableTarget()) {
+      previousPipelineTimestamp = currentTimestamp;
+
+      cameraPoseEstimator.update().ifPresent(estimatedPose -> {
+        final var pose = estimatedPose.estimatedPose.toPose2d();
+        tagX.set(pose.getX());
+        tagY.set(pose.getY());
+        tagDegrees.set(pose.getRotation().getDegrees());
+
+        if (!useVisionMeasurement.get()) return;
+        poseEstimator.addVisionMeasurement(pose, currentTimestamp);
+      });
     }
   }
 

@@ -12,13 +12,13 @@ import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 public class VisionSubsystem extends SubsystemBase {
-  private final ShuffleboardTab tab = Shuffleboard.getTab("Vision");
+  private final ShuffleboardTab tab = Shuffleboard.getTab("Odometry");
   private final PhotonCamera camera = new PhotonCamera("OV9281");
   private PoseEstimatorSubsystem poseEstimator;
 
   public VisionSubsystem() {
-    tab.addNumber("Latest Pipeline Timestamp", this::getLatestPipelineTimestamp);
-    tab.addBoolean("Has Viable Target", this::hasViableTarget);
+    tab.addNumber("Latest Pipeline Timestamp", this::getLatestPipelineTimestamp).withSize(2, 1).withPosition(0, 0);
+    tab.addBoolean("Has Viable Target", this::hasViableTarget).withSize(2, 2).withPosition(0, 1);
   }
 
   /**
@@ -26,6 +26,10 @@ public class VisionSubsystem extends SubsystemBase {
    * @param poseEstimator the poseEstimator to set.
    */
   public void setPoseEstimator(PoseEstimatorSubsystem poseEstimator) {
+    if (this.poseEstimator != null) {
+      throw new RuntimeException("You can only set the poseEstimator once.");
+    }
+
     this.poseEstimator = poseEstimator;
   }
 
@@ -91,13 +95,11 @@ public class VisionSubsystem extends SubsystemBase {
   }
 
   /**
-   * NavX reports a [0, 2pi] angle, whereas PhotonVision reports [-pi, pi]
-   * If the angle is negative add 2pi to it.
+   * Disclaimer: Don't use this method raw, use an encapsulated method.
    *
-   * @return a transformed angle from [-pi, pi] to [0, 2pi].
+   * @return the PhotonCamera.
    */
-  private Transform3d normalizeAngle(Transform3d transform) {
-    final var currentAngle = transform.getRotation().getZ();
-    return transform.plus(new Transform3d(new Translation3d(0.0, 0.0, 0.0), new Rotation3d(0.0, 0.0, currentAngle < 0 ? (2 * Math.PI) : 0.0)));
+  public PhotonCamera getPhotonCamera() {
+    return camera;
   }
 }
