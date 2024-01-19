@@ -8,10 +8,10 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.swerve.SwerveSubsystem;
-import frc.robot.vision.PoseEstimatorSubsystem;
-import frc.robot.vision.VisionSubsystem;
+import frc.robot.pose.PoseEstimatorSubsystem;
+import frc.robot.pose.VisionSubsystem;
 
-import static frc.robot.Constants.*;
+import static frc.robot.Constants.DriveConstants;
 
 public class ChaseTagCommand extends Command {
   private static final int TAG_TO_CHASE = 2;

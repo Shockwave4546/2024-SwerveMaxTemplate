@@ -1,6 +1,5 @@
-package frc.robot.vision;
+package frc.robot.pose;
 
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFieldLayout.OriginPosition;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.VecBuilder;
@@ -18,7 +17,6 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.shuffleboard.ShuffleboardBoolean;
 import frc.robot.shuffleboard.ShuffleboardDouble;
@@ -26,7 +24,6 @@ import frc.robot.swerve.SwerveSubsystem;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.estimation.TargetModel;
 
-import java.io.IOException;
 import java.io.UncheckedIOException;
 
 import static frc.robot.Constants.DriveConstants;
@@ -65,9 +62,9 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
   private final SwerveSubsystem swerve;
   private final VisionSubsystem vision;
 
-  private final ShuffleboardDouble tagX = new ShuffleboardDouble(tab, "Tag X (m)", 0.0);
-  private final ShuffleboardDouble tagY = new ShuffleboardDouble(tab, "Tag Y (m)", 0.0);
-  private final ShuffleboardDouble tagDegrees = new ShuffleboardDouble(tab, "Tag Degrees", 0.0);
+  private final ShuffleboardDouble tagX = new ShuffleboardDouble(tab, "Tag X (m)", 0.0).withSize(3, 1).withPosition(0, 4);
+  private final ShuffleboardDouble tagY = new ShuffleboardDouble(tab, "Tag Y (m)", 0.0).withSize(3, 1).withPosition(3, 4);
+  private final ShuffleboardDouble tagDegrees = new ShuffleboardDouble(tab, "Tag Degrees", 0.0).withSize(3, 1).withPosition(6, 4);
 
   private double previousPipelineTimestamp = 0.0;
 
@@ -93,9 +90,9 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
       throw new RuntimeException(e);
     }
 
-    tab.addNumber("Estimated Pose X (m)", () -> getPose2d().getX());
-    tab.addNumber("Estimated Pose Y (m)", () -> getPose2d().getY());
-    tab.addNumber("Estimated Pose Degrees", () -> getPose2d().getRotation().getDegrees());
+    tab.addNumber("Estimated Pose X (m)", () -> getPose2d().getX()).withSize(3, 1).withPosition(0, 3);
+    tab.addNumber("Estimated Pose Y (m)", () -> getPose2d().getY()).withSize(3, 1).withPosition(3, 3);
+    tab.addNumber("Estimated Pose Degrees", () -> getPose2d().getRotation().getDegrees()).withSize(3, 1).withPosition(6, 3);
   }
 
 
@@ -103,19 +100,22 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
     poseEstimator.update(swerve.getHeadingRotation2d(), swerve.getEstimatedPositions());
 
     final var currentTimestamp = vision.getLatestPipelineTimestamp();
-    if (currentTimestamp != previousPipelineTimestamp && vision.hasViableTarget()) {
-      previousPipelineTimestamp = currentTimestamp;
+    if (currentTimestamp == previousPipelineTimestamp || !vision.hasViableTarget()) return;
+    previousPipelineTimestamp = currentTimestamp;
 
-      cameraPoseEstimator.update().ifPresent(estimatedPose -> {
-        final var pose = estimatedPose.estimatedPose.toPose2d();
-        tagX.set(pose.getX());
-        tagY.set(pose.getY());
-        tagDegrees.set(pose.getRotation().getDegrees());
+    cameraPoseEstimator.update().ifPresentOrElse(estimatedPose -> {
+      final var pose = estimatedPose.estimatedPose.toPose2d();
+      tagX.set(pose.getX());
+      tagY.set(pose.getY());
+      tagDegrees.set(pose.getRotation().getDegrees());
 
-        if (!useVisionMeasurement.get()) return;
-        poseEstimator.addVisionMeasurement(pose, currentTimestamp);
-      });
-    }
+      if (!useVisionMeasurement.get()) return;
+      poseEstimator.addVisionMeasurement(pose, currentTimestamp);
+    }, () -> {
+      tagX.set(0.0);
+      tagY.set(0.0);
+      tagDegrees.set(0.0);
+    });
   }
 
   /**

@@ -8,8 +8,8 @@ import frc.robot.swerve.SwerveSubsystem;
 import frc.robot.swerve.commands.ChaseTagCommand;
 import frc.robot.swerve.commands.ResetPoseCommand;
 import frc.robot.swerve.commands.SetXCommand;
-import frc.robot.vision.PoseEstimatorSubsystem;
-import frc.robot.vision.VisionSubsystem;
+import frc.robot.pose.PoseEstimatorSubsystem;
+import frc.robot.pose.VisionSubsystem;
 
 public class RobotContainer {
   protected final VisionSubsystem vision = new VisionSubsystem();

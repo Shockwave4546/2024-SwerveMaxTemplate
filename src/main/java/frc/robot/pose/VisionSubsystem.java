@@ -1,22 +1,21 @@
-package frc.robot.vision;
+package frc.robot.pose;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 public class VisionSubsystem extends SubsystemBase {
-  private final ShuffleboardTab tab = Shuffleboard.getTab("Odometry");
   private final PhotonCamera camera = new PhotonCamera("OV9281");
   private PoseEstimatorSubsystem poseEstimator;
 
   public VisionSubsystem() {
+    final var tab = Shuffleboard.getTab("Odometry");
     tab.addNumber("Latest Pipeline Timestamp", this::getLatestPipelineTimestamp).withSize(2, 1).withPosition(0, 0);
     tab.addBoolean("Has Viable Target", this::hasViableTarget).withSize(2, 2).withPosition(0, 1);
   }

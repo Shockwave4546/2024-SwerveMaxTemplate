@@ -1,7 +1,7 @@
 package frc.robot.swerve.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.vision.PoseEstimatorSubsystem;
+import frc.robot.pose.PoseEstimatorSubsystem;
 
 public class ResetPoseCommand extends Command {
   private final PoseEstimatorSubsystem poseEstimator;
