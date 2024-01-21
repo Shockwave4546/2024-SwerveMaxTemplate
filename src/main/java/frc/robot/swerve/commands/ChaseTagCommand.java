@@ -33,7 +33,7 @@ public class ChaseTagCommand extends Command {
     yController.setTolerance(0.2);
 
     omegaController.setTolerance(Units.degreesToRadians(3));
-    omegaController.enableContinuousInput(0, 2 * Math.PI);
+    omegaController.enableContinuousInput(-Math.PI, Math.PI);
 
     addRequirements(vision, poseEstimator, swerve);
   }

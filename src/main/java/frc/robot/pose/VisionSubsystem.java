@@ -1,17 +1,18 @@
 package frc.robot.pose;
 
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
+import frc.robot.Constants.VisionConstants;
 import org.photonvision.PhotonCamera;
+import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
+import java.util.function.Function;
+
 public class VisionSubsystem extends SubsystemBase {
-  private final PhotonCamera camera = new PhotonCamera("OV9281");
+  private final PhotonCamera camera = new PhotonCamera(VisionConstants.FRONT_CAMERA_NAME);
   private PoseEstimatorSubsystem poseEstimator;
 
   public VisionSubsystem() {
@@ -25,7 +26,7 @@ public class VisionSubsystem extends SubsystemBase {
    */
   public void setPoseEstimator(PoseEstimatorSubsystem poseEstimator) {
     if (this.poseEstimator != null) {
-      throw new RuntimeException("You can only set the poseEstimator once.");
+      throw new RuntimeException("You can only set the PoseEstimator once.");
     }
 
     this.poseEstimator = poseEstimator;
@@ -39,23 +40,13 @@ public class VisionSubsystem extends SubsystemBase {
   }
 
   /**
-   * @return true if the camera has found targets, which have an ambiguity of less than 0.2.
-   */
-  public boolean hasViableTarget() {
-    final var pipeline = camera.getLatestResult();
-    return pipeline.hasTargets() && pipeline.getBestTarget().getPoseAmbiguity() < 0.2;
-  }
-
-  /**
    * Note: please call #hasViableTarget() before calling this method.
    *
    * @return the best target found by the camera.
    *         throws RuntimeException if no targets are found.
    */
   public PhotonTrackedTarget getTag() {
-    final var pipeline = camera.getLatestResult();
-    if (!pipeline.hasTargets()) throw new RuntimeException("Call this method only when targets are found.");
-    return pipeline.getBestTarget();
+    return processTargets(PhotonPipelineResult::getBestTarget);
   }
 
   /**
@@ -75,7 +66,7 @@ public class VisionSubsystem extends SubsystemBase {
    */
   public Pose3d getCameraRelativeToCenterPose() {
     if (poseEstimator == null) throw new NullPointerException("Initialize the poseEstimator before calling this method.");
-    return poseEstimator.getPose3d().transformBy(Constants.VisionConstants.ROBOT_TO_CAMERA);
+    return poseEstimator.getPose3d().transformBy(VisionConstants.ROBOT_TO_CAMERA);
   }
 
   /**
@@ -83,13 +74,24 @@ public class VisionSubsystem extends SubsystemBase {
    * Would later use by doing CameraPose.transformBy(#getCameraToTagTransform())
    *
    * @return the [Transform3d] to transform the Camera pose to the Tag pose.
-   *         throws RuntimeException if no targets are found.
+   * throws RuntimeException if no targets are found.
    */
   public Transform3d getCameraToTagTransform() {
+    return processTargets(pipeline -> pipeline.getBestTarget().getBestCameraToTarget());
+  }
+
+  private <T> T processTargets(Function<PhotonPipelineResult, T> outPipeline) {
     final var pipeline = camera.getLatestResult();
-    if (!pipeline.hasTargets()) throw new RuntimeException("Call this method only when targets are found.");
-    final var tag = pipeline.getBestTarget();
-    return tag.getBestCameraToTarget().plus(new Transform3d(new Translation3d(), new Rotation3d(0.0, 0.0, Math.PI)));
+    if (!hasViableTarget()) throw new MissingPhotonTargetException("Only call this method when targets are found!");
+    return outPipeline.apply(pipeline);
+  }
+
+  /**
+   * @return true if the camera has found targets, which have an ambiguity of less than 0.2.
+   */
+  public boolean hasViableTarget() {
+    final var pipeline = camera.getLatestResult();
+    return pipeline.hasTargets() && pipeline.getBestTarget().getPoseAmbiguity() < VisionConstants.MAXIMUM_AMBIGUITY;
   }
 
   /**

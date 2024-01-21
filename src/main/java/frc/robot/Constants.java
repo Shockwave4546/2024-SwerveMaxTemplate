@@ -69,6 +69,9 @@ public final class Constants {
      */
     public static final Transform3d CAMERA_TO_ROBOT = new Transform3d(new Translation3d(0.0, 0.0, 0.0), new Rotation3d());
     public static final Transform3d ROBOT_TO_CAMERA = CAMERA_TO_ROBOT.inverse();
+
+    public static final double MAXIMUM_AMBIGUITY = 0.2;
+    public static final String FRONT_CAMERA_NAME = "OV9281";
   }
 
   public static final class ModuleConstants {

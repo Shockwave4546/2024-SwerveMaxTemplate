@@ -106,18 +106,15 @@ public class MAXSwerveModule {
     drivingEncoder.setPosition(0);
 
     final var colIndex = COUNT * 7;
-    // For debugging purposes.
-    TAB.add(prefix + " D ID", drivingCANId).withSize(4, 1).withPosition(colIndex, 0);
-    TAB.addNumber(prefix + "D Duty Cycle", drivingSparkMax::getAppliedOutput).withSize(4, 1).withPosition(colIndex, 1);
-    TAB.addNumber(prefix + "D Amperage", drivingSparkMax::getOutputCurrent).withSize(4, 1).withPosition(colIndex, 2);
-    TAB.addNumber(prefix + "D Temperature (C)", drivingSparkMax::getMotorTemperature).withSize(4, 1).withPosition(colIndex, 3);
-    TAB.add(prefix + "D PID", new TunableSparkPIDController(drivingPIDController)).withSize(2, 3).withPosition(colIndex + 4, 0);
+    TAB.addNumber(prefix + drivingCANId + " Duty Cycle", drivingSparkMax::getAppliedOutput).withSize(4, 1).withPosition(colIndex, 0);
+    TAB.addNumber(prefix + drivingCANId + " Amperage", drivingSparkMax::getOutputCurrent).withSize(4, 1).withPosition(colIndex, 1);
+    TAB.addNumber(prefix + drivingCANId + " Temperature", drivingSparkMax::getMotorTemperature).withSize(4, 1).withPosition(colIndex, 2);
+    TAB.add(prefix + drivingCANId + " PID", new TunableSparkPIDController(drivingPIDController)).withSize(3, 3).withPosition(colIndex + 4, 0);
 
-    TAB.add(prefix + "T ID", turningCANId).withSize(4, 1).withPosition(0, 4);
-    TAB.addNumber(prefix + "T Duty Cycle", turningSparkMax::getAppliedOutput).withSize(4, 1).withPosition(colIndex, 5);
-    TAB.addNumber(prefix + "T Amperage", turningSparkMax::getOutputCurrent).withSize(4, 1).withPosition(colIndex, 6);
-    TAB.addNumber(prefix + "T Temperature (C)", turningSparkMax::getMotorTemperature).withSize(4, 1).withPosition(colIndex, 7);
-    TAB.add(prefix + "T PID", new TunableSparkPIDController(turningPIDController)).withSize(2, 3).withPosition(colIndex + 4, 4);
+    TAB.addNumber(prefix + turningCANId + " Duty Cycle", turningSparkMax::getAppliedOutput).withSize(4, 1).withPosition(colIndex, 4);
+    TAB.addNumber(prefix + turningCANId + " Amperage", turningSparkMax::getOutputCurrent).withSize(4, 1).withPosition(colIndex, 5);
+    TAB.addNumber(prefix + turningCANId + " Temperature", turningSparkMax::getMotorTemperature).withSize(4, 1).withPosition(colIndex, 6);
+    TAB.add(prefix + turningCANId + " PID", new TunableSparkPIDController(turningPIDController)).withSize(3, 3).withPosition(colIndex + 4, 4);
     COUNT++;
   }
 

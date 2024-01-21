@@ -6,7 +6,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.shuffleboard.ShuffleboardBoolean;
@@ -36,7 +35,7 @@ public class SwerveSubsystem extends SubsystemBase {
           DriveConstants.BACK_LEFT_TURNING_CAN_ID,
           DriveConstants.BACK_LEFT_CHASSIS_ANGULAR_OFFSET,
           false,
-          "BL"
+          "RL"
   );
 
   private final MAXSwerveModule backRight = new MAXSwerveModule(
@@ -44,7 +43,7 @@ public class SwerveSubsystem extends SubsystemBase {
           DriveConstants.BACK_RIGHT_TURNING_CAN_ID,
           DriveConstants.BACK_RIGHT_CHASSIS_ANGULAR_OFFSET,
           false,
-          "BR"
+          "RR"
   );
 
   private final AHRS gyro = new AHRS();
@@ -152,6 +151,9 @@ public class SwerveSubsystem extends SubsystemBase {
     }
   }
 
+  /**
+   * @return the SwerveModulePositions of the SwerveModules.
+   */
   public SwerveModulePosition[] getEstimatedPositions() {
     return new SwerveModulePosition[] {
             frontLeft.getPosition(),

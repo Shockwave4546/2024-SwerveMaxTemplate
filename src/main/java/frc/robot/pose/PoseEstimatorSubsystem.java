@@ -125,20 +125,15 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
    */
   public void resetOdometry(Pose2d pose) {
     poseEstimator.resetPosition(
-            new Rotation2d(),
-            new SwerveModulePosition[] {
-                    new SwerveModulePosition(),
-                    new SwerveModulePosition(),
-                    new SwerveModulePosition(),
-                    new SwerveModulePosition()
-            },
+            swerve.getHeadingRotation2d(),
+            swerve.getEstimatedPositions(),
             pose);
   }
 
   /**
    * Zeros the heading. This sets the direction for field-centric driving.
    */
-  public void zeroHeading() {
+  public void resetPose() {
     swerve.zeroGyro();
     resetOdometry(new Pose2d(poseEstimator.getEstimatedPosition().getTranslation(), new Rotation2d()));
   }

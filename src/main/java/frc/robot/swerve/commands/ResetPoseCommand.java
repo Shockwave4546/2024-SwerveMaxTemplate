@@ -12,7 +12,7 @@ public class ResetPoseCommand extends Command {
   }
 
   @Override public void initialize() {
-    poseEstimator.zeroHeading();
+    poseEstimator.resetPose();
   }
 
   @Override public boolean isFinished() {
