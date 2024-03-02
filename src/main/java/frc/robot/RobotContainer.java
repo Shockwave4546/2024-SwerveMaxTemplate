@@ -34,7 +34,7 @@ public class RobotContainer {
   private void configureButtonBindings() {
     driverController.a().whileTrue(new ChaseTagCommand(vision, poseEstimator, swerve));
 
-    driverController.b().onTrue(new ResetPoseCommand(poseEstimator));
+    driverController.b().onTrue(new ResetPoseCommand(swerve, poseEstimator));
     driverController.x().onTrue(new SetXCommand(swerve));
     driverController.leftBumper().whileTrue(new SetSpeedMaxCommand(swerve, 0.2, 0.4));
     driverController.rightBumper().whileTrue(new SetSpeedMaxCommand(swerve, 0.4, 0.6));
