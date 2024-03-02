@@ -3,8 +3,9 @@ package frc.robot.swerve.commands;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.Constants.IOConstants;
 import frc.robot.swerve.SwerveSubsystem;
+
+import static frc.robot.Constants.IO;
 
 public class SwerveDriveCommand extends Command {
   private final CommandXboxController controller;
@@ -18,9 +19,9 @@ public class SwerveDriveCommand extends Command {
 
   @Override public void execute() {
     swerve.drive(
-            MathUtil.applyDeadband(controller.getLeftY(), IOConstants.DRIVE_DEADBAND),
-            MathUtil.applyDeadband(controller.getLeftX(), IOConstants.DRIVE_DEADBAND),
-            -MathUtil.applyDeadband(controller.getRightX(), IOConstants.DRIVE_DEADBAND),
+            -MathUtil.applyDeadband(controller.getLeftY(), IO.DRIVE_DEADBAND),
+            -MathUtil.applyDeadband(controller.getLeftX(), IO.DRIVE_DEADBAND),
+            -MathUtil.applyDeadband(controller.getRightX(), IO.DRIVE_DEADBAND),
             swerve.isFieldRelative(),
             false
     );

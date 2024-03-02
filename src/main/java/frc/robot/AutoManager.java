@@ -28,15 +28,17 @@ public class AutoManager {
             swerve::getRelativeChassisSpeed,
             swerve::driveAutonomous,
             new HolonomicPathFollowerConfig(
-                    new PIDConstants(AutoConstants.DRIVING_P, AutoConstants.DRIVING_I, AutoConstants.DRIVING_D),
-                    new PIDConstants(AutoConstants.TURNING_P, AutoConstants.TURNING_I, AutoConstants.TURNING_D),
-                    DriveConstants.MAX_SPEED_METERS_PER_SECOND,
-                    DriveConstants.WHEEL_BASE / 2,
+                    new PIDConstants(Auto.DRIVING_P, Auto.DRIVING_I, Auto.DRIVING_D),
+                    new PIDConstants(Auto.TURNING_P, Auto.TURNING_I, Auto.TURNING_D),
+                    Swerve.MAX_SPEED_METERS_PER_SECOND,
+                    Swerve.WHEEL_BASE / 2,
                     new ReplanningConfig()
             ),
             this::shouldFlipPath,
             swerve
     );
+
+    // Note: Named commands must be registered before the creation of any PathPlanner Autos or Paths.
 
     this.chooser = AutoBuilder.buildAutoChooser("Do nothing.");
     Tabs.MATCH.add("Autonomous", chooser).withSize(3, 2).withPosition(3, 0);

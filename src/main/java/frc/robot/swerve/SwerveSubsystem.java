@@ -1,13 +1,14 @@
 package frc.robot.swerve;
 
 import com.kauailabs.navx.frc.AHRS;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.Swerve;
 import frc.robot.shuffleboard.ShuffleboardBoolean;
 import frc.robot.shuffleboard.ShuffleboardSpeed;
 
@@ -15,41 +16,41 @@ import static frc.robot.Constants.Tabs.MATCH;
 
 public class SwerveSubsystem extends SubsystemBase {
   private final MAXSwerveModule frontLeft = new MAXSwerveModule(
-          DriveConstants.FRONT_LEFT_DRIVING_CAN_ID,
-          DriveConstants.FRONT_LEFT_TURNING_CAN_ID,
-          DriveConstants.FRONT_LEFT_CHASSIS_ANGULAR_OFFSET,
+          Swerve.FRONT_LEFT_DRIVING_CAN_ID,
+          Swerve.FRONT_LEFT_TURNING_CAN_ID,
+          Swerve.FRONT_LEFT_CHASSIS_ANGULAR_OFFSET,
           false,
           "FL"
   );
 
   private final MAXSwerveModule frontRight = new MAXSwerveModule(
-          DriveConstants.FRONT_RIGHT_DRIVING_CAN_ID,
-          DriveConstants.FRONT_RIGHT_TURNING_CAN_ID,
-          DriveConstants.FRONT_RIGHT_CHASSIS_ANGULAR_OFFSET,
+          Swerve.FRONT_RIGHT_DRIVING_CAN_ID,
+          Swerve.FRONT_RIGHT_TURNING_CAN_ID,
+          Swerve.FRONT_RIGHT_CHASSIS_ANGULAR_OFFSET,
           false,
           "FR"
   );
 
   private final MAXSwerveModule backLeft = new MAXSwerveModule(
-          DriveConstants.BACK_LEFT_DRIVING_CAN_ID,
-          DriveConstants.BACK_LEFT_TURNING_CAN_ID,
-          DriveConstants.BACK_LEFT_CHASSIS_ANGULAR_OFFSET,
+          Swerve.BACK_LEFT_DRIVING_CAN_ID,
+          Swerve.BACK_LEFT_TURNING_CAN_ID,
+          Swerve.BACK_LEFT_CHASSIS_ANGULAR_OFFSET,
           false,
           "RL"
   );
 
   private final MAXSwerveModule backRight = new MAXSwerveModule(
-          DriveConstants.BACK_RIGHT_DRIVING_CAN_ID,
-          DriveConstants.BACK_RIGHT_TURNING_CAN_ID,
-          DriveConstants.BACK_RIGHT_CHASSIS_ANGULAR_OFFSET,
+          Swerve.BACK_RIGHT_DRIVING_CAN_ID,
+          Swerve.BACK_RIGHT_TURNING_CAN_ID,
+          Swerve.BACK_RIGHT_CHASSIS_ANGULAR_OFFSET,
           false,
           "RR"
   );
 
   private final AHRS gyro = new AHRS();
-  private final ShuffleboardSpeed driveSpeedMultiplier = new ShuffleboardSpeed(MATCH, "Drive Speed Multiplier", DriveConstants.DEFAULT_DRIVE_SPEED_MULTIPLIER)
+  private final ShuffleboardSpeed driveSpeedMultiplier = new ShuffleboardSpeed(MATCH, "Drive Speed Multiplier", Swerve.DEFAULT_DRIVE_SPEED_MULTIPLIER)
           .withSize(5, 2).withPosition(0, 4);
-  private final ShuffleboardSpeed rotSpeedMultiplier = new ShuffleboardSpeed(MATCH, "Rot Speed Multiplier", DriveConstants.DEFAULT_ROT_SPEED_MULTIPLIER)
+  private final ShuffleboardSpeed rotSpeedMultiplier = new ShuffleboardSpeed(MATCH, "Rot Speed Multiplier", Swerve.DEFAULT_ROT_SPEED_MULTIPLIER)
           .withSize(5, 2).withPosition(5, 4);
   private final ShuffleboardBoolean isFieldRelative = new ShuffleboardBoolean(MATCH, "Is Field Relative?", true)
           .withSize(3, 2).withPosition(6, 0);
@@ -66,7 +67,7 @@ public class SwerveSubsystem extends SubsystemBase {
    * @return chassis speed relative to the robot.
    */
   public ChassisSpeeds getRelativeChassisSpeed() {
-    return DriveConstants.DRIVE_KINEMATICS.toChassisSpeeds(
+    return Swerve.DRIVE_KINEMATICS.toChassisSpeeds(
             frontLeft.getState(),
             frontRight.getState(),
             backLeft.getState(),
@@ -91,6 +92,11 @@ public class SwerveSubsystem extends SubsystemBase {
     return isFieldRelative.get();
   }
 
+  public void setMaxSpeed(double drive, double rot) {
+    driveSpeedMultiplier.set(MathUtil.clamp(drive, 0.0, 1.0));
+    rotSpeedMultiplier.set(MathUtil.clamp(rot, 0.0, 1.0));
+  }
+
   /**
    * Method to drive the robot using joystick info.
    *
@@ -107,11 +113,11 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     // Convert the commanded speeds into the correct units for the drivetrain
-    final double xSpeedDelivered = xSpeed * DriveConstants.MAX_SPEED_METERS_PER_SECOND * (useDefaultSpeeds ? DriveConstants.DEFAULT_DRIVE_SPEED_MULTIPLIER : driveSpeedMultiplier.get());
-    final double ySpeedDelivered = ySpeed * DriveConstants.MAX_SPEED_METERS_PER_SECOND * (useDefaultSpeeds ? DriveConstants.DEFAULT_DRIVE_SPEED_MULTIPLIER : driveSpeedMultiplier.get());
-    final double rotDelivered = rotSpeed * DriveConstants.MAX_ANGULAR_SPEED * (useDefaultSpeeds ? DriveConstants.DEFAULT_ROT_SPEED_MULTIPLIER : rotSpeedMultiplier.get());
+    final double xSpeedDelivered = xSpeed * Swerve.MAX_SPEED_METERS_PER_SECOND * (useDefaultSpeeds ? Swerve.DEFAULT_DRIVE_SPEED_MULTIPLIER : driveSpeedMultiplier.get());
+    final double ySpeedDelivered = ySpeed * Swerve.MAX_SPEED_METERS_PER_SECOND * (useDefaultSpeeds ? Swerve.DEFAULT_DRIVE_SPEED_MULTIPLIER : driveSpeedMultiplier.get());
+    final double rotDelivered = rotSpeed * Swerve.MAX_ANGULAR_SPEED * (useDefaultSpeeds ? Swerve.DEFAULT_ROT_SPEED_MULTIPLIER : rotSpeedMultiplier.get());
 
-    final var swerveModuleStates = DriveConstants.DRIVE_KINEMATICS.toSwerveModuleStates(
+    final var swerveModuleStates = Swerve.DRIVE_KINEMATICS.toSwerveModuleStates(
             fieldRelative
                     ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered, getHeadingRotation2d())
                     : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
@@ -133,7 +139,7 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public void driveAutonomous(ChassisSpeeds speeds) {
     // For some reason, PathPlanner is giving me opposite directions, so use this temporary fix.
-    final var swerveModuleStates = DriveConstants.DRIVE_KINEMATICS.toSwerveModuleStates(speeds.times(-1.0));
+    final var swerveModuleStates = Swerve.DRIVE_KINEMATICS.toSwerveModuleStates(speeds.times(-1.0));
     setModuleStates(swerveModuleStates);
   }
 
@@ -169,7 +175,7 @@ public class SwerveSubsystem extends SubsystemBase {
    * @param desiredStates The desired SwerveModule states.
    */
   public void setModuleStates(SwerveModuleState... desiredStates) {
-    SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, DriveConstants.MAX_SPEED_METERS_PER_SECOND);
+    SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, Swerve.MAX_SPEED_METERS_PER_SECOND);
     frontLeft.setDesiredState(desiredStates[0]);
     frontRight.setDesiredState(desiredStates[1]);
     backLeft.setDesiredState(desiredStates[2]);
@@ -209,6 +215,6 @@ public class SwerveSubsystem extends SubsystemBase {
    * @return The properly negated angle in degrees.
    */
   private double getRawAngleDegrees() {
-    return (DriveConstants.GYRO_REVERSED ? -1.0 : 1.0) * gyro.getAngle();
+    return (Swerve.GYRO_REVERSED ? -1.0 : 1.0) * gyro.getAngle();
   }
 }

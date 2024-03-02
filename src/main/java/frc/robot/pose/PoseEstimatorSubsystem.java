@@ -5,10 +5,7 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
@@ -17,7 +14,6 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.VisionConstants;
 import frc.robot.shuffleboard.ShuffleboardBoolean;
 import frc.robot.shuffleboard.ShuffleboardDouble;
 import frc.robot.swerve.SwerveSubsystem;
@@ -26,7 +22,8 @@ import org.photonvision.estimation.TargetModel;
 
 import java.io.UncheckedIOException;
 
-import static frc.robot.Constants.DriveConstants;
+import static frc.robot.Constants.Swerve;
+import static frc.robot.Constants.Vision;
 
 public class PoseEstimatorSubsystem extends SubsystemBase {
   private final ShuffleboardTab tab = Shuffleboard.getTab("Odometry");
@@ -44,7 +41,7 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
    */
   private static final Vector<N3> VISION_MEASUREMENT_STD_DEVS = VecBuilder.fill(0.5, 0.5, Units.degreesToRadians(10));
   private final SwerveDrivePoseEstimator poseEstimator = new SwerveDrivePoseEstimator(
-          DriveConstants.DRIVE_KINEMATICS,
+          Swerve.DRIVE_KINEMATICS,
           new Rotation2d(),
           new SwerveModulePosition[] {
                   new SwerveModulePosition(0.0, new Rotation2d()),
@@ -65,9 +62,11 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
   private final ShuffleboardDouble tagX = new ShuffleboardDouble(tab, "Tag X (m)", 0.0).withSize(3, 2).withPosition(0, 4);
   private final ShuffleboardDouble tagY = new ShuffleboardDouble(tab, "Tag Y (m)", 0.0).withSize(3, 2).withPosition(3, 4);
   private final ShuffleboardDouble tagDegrees = new ShuffleboardDouble(tab, "Tag Degrees", 0.0).withSize(3, 2).withPosition(6, 4);
+  private final ShuffleboardDouble tagID = new ShuffleboardDouble(tab, "Tag ID", -1.0).withSize(3, 2).withPosition(9, 4);
 
   private double previousPipelineTimestamp = 0.0;
 
+  @SuppressWarnings("resource")
   public PoseEstimatorSubsystem(SwerveSubsystem swerve, VisionSubsystem vision) {
     this.swerve = swerve;
     this.vision = vision;
@@ -82,7 +81,7 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
               layout,
               PhotonPoseEstimator.PoseStrategy.MULTI_TAG_PNP_ON_RIO,
               vision.getPhotonCamera(),
-              VisionConstants.ROBOT_TO_CAMERA
+              Vision.ROBOT_TO_CAMERA
       );
 
       this.cameraPoseEstimator.setTagModel(TargetModel.kAprilTag36h11);
@@ -90,31 +89,36 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
       throw new RuntimeException(e);
     }
 
-    tab.addNumber("Estimated Pose X (m)", () -> getPose2d().getX()).withSize(3, 2).withPosition(0, 2);
-    tab.addNumber("Estimated Pose Y (m)", () -> getPose2d().getY()).withSize(3, 2).withPosition(3, 2);
-    tab.addNumber("Estimated Pose Degrees", () -> getPose2d().getRotation().getDegrees()).withSize(3, 2).withPosition(6, 2);
+    tab.addNumber("Pose X (m)", () -> getPose2d().getX()).withSize(3, 2).withPosition(0, 2);
+    tab.addNumber("Pose Y (m)", () -> getPose2d().getY()).withSize(3, 2).withPosition(3, 2);
+    tab.addNumber("Pose Degrees", () -> getPose2d().getRotation().getDegrees()).withSize(3, 2).withPosition(6, 2);
   }
-
 
   @Override public void periodic() {
     poseEstimator.update(swerve.getHeadingRotation2d(), swerve.getEstimatedPositions());
 
     final var currentTimestamp = vision.getLatestPipelineTimestamp();
-    if (currentTimestamp == previousPipelineTimestamp || !vision.hasViableTarget()) return;
-    previousPipelineTimestamp = currentTimestamp;
-
-    cameraPoseEstimator.update().ifPresentOrElse(estimatedPose -> {
-      final var pose = estimatedPose.estimatedPose.toPose2d();
-      tagX.set(pose.getX());
-      tagY.set(pose.getY());
-      tagDegrees.set(pose.getRotation().getDegrees());
-
-      if (!useVisionMeasurement.get()) return;
-      poseEstimator.addVisionMeasurement(pose, currentTimestamp);
-    }, () -> {
+    if (currentTimestamp == previousPipelineTimestamp) return;
+    if (!vision.hasViableTarget()) {
       tagX.set(0.0);
       tagY.set(0.0);
       tagDegrees.set(0.0);
+      tagID.set(-1.0);
+      return;
+    }
+
+    previousPipelineTimestamp = currentTimestamp;
+
+    final var tag = vision.getTag();
+    final var transform = tag.getBestCameraToTarget();
+    tagX.set(transform.getX());
+    tagY.set(transform.getY());
+    tagDegrees.set(transform.getRotation().toRotation2d().getDegrees());
+    tagID.set(tag.getFiducialId());
+
+    cameraPoseEstimator.update().ifPresent(estimatedPose -> {
+      if (!useVisionMeasurement.get()) return;
+      poseEstimator.addVisionMeasurement(estimatedPose.estimatedPose.toPose2d(), currentTimestamp);
     });
   }
 
@@ -134,8 +138,7 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
    * Zeros the heading. This sets the direction for field-centric driving.
    */
   public void resetPose() {
-    swerve.zeroGyro();
-    resetOdometry(new Pose2d(poseEstimator.getEstimatedPosition().getTranslation(), new Rotation2d()));
+    resetOdometry(new Pose2d(new Translation2d(), new Rotation2d()));
   }
 
   /**
